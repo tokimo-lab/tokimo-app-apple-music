@@ -10,12 +10,15 @@
  * Extracted from AppleMusicProvider to keep the provider ≤ 500 lines.
  */
 
+import type { MediaSessionQueueItem } from "@tokimo/app-sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PlaybackStateData } from "../api-types/PlaybackStateData";
-import type { MediaSessionQueueItem } from "@tokimo/app-sdk";
-import { useMediaSessionOptional, useMediaSessionRegister } from "../shell/hooks";
-import * as centralEngine from "../shell/engine-ref";
 import { usePlaybackStatePersistence } from "../hooks/usePlaybackStatePersistence";
+import * as centralEngine from "../shell/engine-ref";
+import {
+  useMediaSessionOptional,
+  useMediaSessionRegister,
+} from "../shell/hooks";
 import { formatArtworkUrl } from "./types";
 
 interface AppleMusicSessionInput {

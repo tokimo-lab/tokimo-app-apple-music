@@ -1,5 +1,10 @@
-import { useShellMediaSession, useShellMenuBar, useShellToast, useShellWindowNav } from "@tokimo/app-sdk/react";
 import type { MediaSessionSource, MenuBarConfig } from "@tokimo/app-sdk";
+import {
+  useShellMediaSession,
+  useShellMenuBar,
+  useShellToast,
+  useShellWindowNav,
+} from "@tokimo/app-sdk/react";
 import { useAppCtx } from "../AppContext";
 
 export function useMessage() {
@@ -25,8 +30,10 @@ export function useMediaSessionRegister(source: MediaSessionSource | null) {
 export function useMediaSessionOptional() {
   const ctx = useAppCtx();
   return {
-    requestPlay: (id: string, provider?: string) => ctx.shell.media.requestPlay(id, provider),
-    notifyPause: (id: string, provider?: string) => ctx.shell.media.notifyPause(id, provider),
+    requestPlay: (id: string, provider?: string) =>
+      ctx.shell.media.requestPlay(id, provider),
+    notifyPause: (id: string, provider?: string) =>
+      ctx.shell.media.notifyPause(id, provider),
     notifySaveNeeded: (_id: string, _provider?: string): void => {
       /* no-op in standalone */
     },

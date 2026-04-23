@@ -1,7 +1,12 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Dispose } from "@tokimo/app-sdk";
 import { defineApp } from "@tokimo/app-sdk";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConfigProvider, ToastProvider, enUS as uiEnUS, zhCN as uiZhCN } from "@tokimo/ui";
+import {
+  ConfigProvider,
+  ToastProvider,
+  enUS as uiEnUS,
+  zhCN as uiZhCN,
+} from "@tokimo/ui";
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { AppCtxProvider } from "./AppContext";
@@ -15,11 +20,10 @@ export default defineApp({
     id: "apple-music",
     appName: "Apple Music",
     icon: "ListMusic",
-    image: "icon.png",
     color: "#FA2D48",
     windowType: "apple-music",
     defaultSize: { width: 1280, height: 850 },
-    category: "system",
+    category: "app",
   },
   mount(container, ctx): Dispose {
     initEngine(ctx.shell.media);

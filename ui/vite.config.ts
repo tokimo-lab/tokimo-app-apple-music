@@ -20,6 +20,13 @@ const EXTERNAL = [
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // react-query (and other libs) reference process.env.NODE_ENV at runtime;
+  // statically replace so the bundle works in the host browser without a
+  // `process` global.
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("production"),
+    "process.env": JSON.stringify({}),
+  },
   build: {
     outDir: "dist",
     emptyOutDir: true,

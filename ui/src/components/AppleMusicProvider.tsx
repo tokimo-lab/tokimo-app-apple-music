@@ -8,14 +8,13 @@ import {
   useState,
 } from "react";
 import type { PlaybackStateData } from "../api-types/PlaybackStateData";
-import * as centralEngine from "../shell/engine-ref";
-import { useMediaSessionOptional } from "../shell/hooks";
-import { useMessage } from "../shell/hooks";
 import { getCatalogTrackId, resolveLibrarySongToCatalog } from "../proxy-utils";
 import {
   getStoredAppleMusicVolume,
   saveStoredAppleMusicVolume,
 } from "../shared-audio";
+import * as centralEngine from "../shell/engine-ref";
+import { useMediaSessionOptional, useMessage } from "../shell/hooks";
 import { installAppleMusicFetchInterceptor } from "./apple-music-fetch-interceptor";
 import type { AppleMusicPage } from "./types";
 import { useAppleMusicSession } from "./use-apple-music-session";

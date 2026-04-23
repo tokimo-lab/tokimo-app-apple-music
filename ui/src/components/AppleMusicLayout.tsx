@@ -1,8 +1,8 @@
+import type { MenuBarConfig } from "@tokimo/app-sdk";
 import { Spin } from "@tokimo/ui";
 import { lazy, Suspense, useMemo } from "react";
 import { useContainerWidth } from "../hooks/use-container-width";
 import { useSidebarCollapsed } from "../hooks/use-sidebar-collapsed";
-import type { MenuBarConfig } from "@tokimo/app-sdk";
 import { useMenuBar } from "../shell/hooks";
 import { AppleMusicLogin } from "./AppleMusicLogin";
 import { AppleMusicPlayer } from "./AppleMusicPlayer";

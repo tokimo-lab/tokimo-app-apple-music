@@ -19,10 +19,21 @@ export interface PlaybackStateData {
         albumName?: string;
         artwork?: unknown;
         durationInMillis?: number;
-        playParams?: { id?: string; catalogId?: string; kind?: string; isLibrary?: boolean };
+        playParams?: {
+          id?: string;
+          catalogId?: string;
+          kind?: string;
+          isLibrary?: boolean;
+        };
       };
     }>;
-    nowPlaying?: { title: string; artistName: string; albumName: string; artworkUrl: string; duration: number };
+    nowPlaying?: {
+      title: string;
+      artistName: string;
+      albumName: string;
+      artworkUrl: string;
+      duration: number;
+    };
     shuffleMode?: boolean;
   };
   appleMusic?: {
@@ -40,9 +51,20 @@ export interface PlaybackStateData {
         albumName?: string;
         artwork?: unknown;
         durationInMillis?: number;
-        playParams?: { id?: string; catalogId?: string; kind?: string; isLibrary?: boolean };
+        playParams?: {
+          id?: string;
+          catalogId?: string;
+          kind?: string;
+          isLibrary?: boolean;
+        };
       };
     }>;
-    nowPlaying?: { title: string; artistName: string; albumName: string; artworkUrl: string; duration: number };
+    nowPlaying?: {
+      title: string;
+      artistName: string;
+      albumName: string;
+      artworkUrl: string;
+      duration: number;
+    };
   };
 }

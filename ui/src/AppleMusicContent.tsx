@@ -8,21 +8,36 @@
  * window state access).
  */
 
-import { Alert, Spin } from "@tokimo/ui";
 import { useQuery } from "@tanstack/react-query";
-import { useWindowNavHook as useWindowNav } from "./shell/hooks";
+import { Alert, Spin } from "@tokimo/ui";
 import { AppleMusicLayout } from "./components/AppleMusicLayout";
 import { AppleMusicProvider } from "./components/AppleMusicProvider";
 import type { AppleMusicPage } from "./components/types";
+import { useWindowNavHook as useWindowNav } from "./shell/hooks";
 
 export default function AppleMusicContent() {
   const { route, replace } = useWindowNav();
-  const { data, isLoading, error } = useQuery<{ developerToken: string }, Error>({
+  const { data, isLoading, error } = useQuery<
+    { developerToken: string },
+    Error
+  >({
     queryKey: ["apple-music-token"],
     queryFn: async () => {
-      const r = await fetch("/api/apps/apple-music/token", { credentials: "include" });
+      const r = await fetch("/api/apps/apple-music/token", {
+        credentials: "include",
+      });
       if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
-      return r.json() as Promise<{ developerToken: string }>;
+      const json = (await r.json()) as {
+        success: boolean;
+        data?: { developerToken: string };
+        error?: string;
+      };
+      if (!json.success || !json.data?.developerToken) {
+        throw new Error(
+          json.error ?? "Server did not return a developer token",
+        );
+      }
+      return json.data;
     },
     staleTime: 1000 * 60 * 60,
   });

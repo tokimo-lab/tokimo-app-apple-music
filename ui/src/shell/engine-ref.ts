@@ -11,7 +11,8 @@ function get(): ShellMediaApi {
   return _media;
 }
 
-export const loadAndPlay = (url: string, opts: LoadAndPlayOptions) => get().loadAndPlay(url, opts);
+export const loadAndPlay = (url: string, opts: LoadAndPlayOptions) =>
+  get().loadAndPlay(url, opts);
 export const pause = () => get().pause();
 export const resume = () => get().resume();
 export const stop = () => get().stop();
