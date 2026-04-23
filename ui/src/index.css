@@ -1,0 +1,26 @@
+/* IMPORTANT: skip Tailwind's preflight reset.
+ * The shell already applies preflight globally; importing it again from a
+ * third-party app would override body/text colors and break the host UI.
+ * We only need utility classes + the theme tokens. */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+
+/* Tokimo design tokens (CSS variables + accent palettes).
+ * When the app runs inside the shell these variables already exist on
+ * <html>, so this import is effectively a no-op (same vars, same values).
+ * When the app runs standalone (vite dev / Storybook), these definitions
+ * ensure <Button>, <Card>, etc. still get correct colors. */
+@import "@tokimo/ui/theme.css";
+
+/* Scan our own source — Tailwind v4 picks up co-located files automatically,
+   but we still declare it so the build is deterministic. */
+@source "./**/*.{ts,tsx}";
+
+/* Scan the workspace UI library so the classes used by <Button>, <Card>,
+   <Input>, etc. end up in this app's CSS bundle. Path is relative to this
+   file (apps/tokimo-app-helloworld/ui/src/index.css) and resolves to
+   packages/ui/src — works because pnpm hoists workspace packages.
+   Third-party app authors install @tokimo/ui from npm and would replace
+   this with a path under node_modules once the UI lib ships pre-compiled
+   CSS or scanable JS bundles. */
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";

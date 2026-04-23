@@ -1,0 +1,31 @@
+export const zhCN: Record<string, string> = {
+  title: "Hello World 试点应用",
+  subtitle: "多进程 App 架构演示",
+  inputPlaceholder: "输入内容…",
+  add: "添加",
+  addAndNotify: "添加并发送通知",
+  refresh: "刷新",
+  empty: "还没有任何项目，添加一个看看吧",
+  delete: "删除",
+  notifyOnly: "只发通知",
+  loading: "加载中…",
+  error: "请求失败：",
+  notifyTitle: "Hello World",
+  notifyBody: "来自三方 App 的问候 👋",
+};
+
+export const enUS: Record<string, string> = {
+  title: "Hello World pilot app",
+  subtitle: "Multi-process app architecture demo",
+  inputPlaceholder: "Type something…",
+  add: "Add",
+  addAndNotify: "Add & notify",
+  refresh: "Refresh",
+  empty: "No items yet — add one to get started",
+  delete: "Delete",
+  notifyOnly: "Notify only",
+  loading: "Loading…",
+  error: "Request failed: ",
+  notifyTitle: "Hello World",
+  notifyBody: "Greetings from a third-party app 👋",
+};

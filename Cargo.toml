@@ -1,0 +1,40 @@
+[package]
+name        = "tokimo-app-apple-music"
+version     = "0.1.0"
+edition     = "2024"
+rust-version = "1.85"
+license     = "MIT OR Apache-2.0"
+description = "Tokimo Apple Music app: developer-token scraping + webplayback proxy + lossless decryption."
+repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
+
+[dependencies]
+tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "77087d91f518745f611e93d1b5b1871fc47f10d7" }
+tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "77087d91f518745f611e93d1b5b1871fc47f10d7" }
+
+# 复用 tokimo 主仓库里的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
+rust-apple-music    = { path = "../../packages/rust-apple-music" }
+
+tokio              = { version = "1", features = ["rt-multi-thread", "macros", "time", "signal"] }
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde              = { version = "1", features = ["derive"] }
+serde_json         = "1"
+uuid               = { version = "1", features = ["v4", "serde"] }
+chrono             = { version = "0.4", features = ["serde"] }
+anyhow             = "1"
+regex              = "1"
+reqwest            = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+futures-util       = "0.3"
+
+rust-embed         = { version = "8", features = ["debug-embed"] }
+mime_guess         = "2"
+hyper              = { version = "1", features = ["server", "http1"] }
+hyper-util         = { version = "0.1", features = ["tokio", "server", "http1"] }
+http-body-util     = "0.1"
+axum               = { version = "0.8", features = ["json"] }
+tower              = "0.5"
+
+[profile.release]
+lto       = "thin"
+opt-level = 3
+strip     = "symbols"
