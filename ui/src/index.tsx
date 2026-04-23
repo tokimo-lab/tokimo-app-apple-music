@@ -20,6 +20,7 @@ export default defineApp({
     id: "apple-music",
     appName: "Apple Music",
     icon: "ListMusic",
+    image: "icon.png",
     color: "#FA2D48",
     windowType: "apple-music",
     defaultSize: { width: 1280, height: 850 },
