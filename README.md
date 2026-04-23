@@ -74,4 +74,11 @@ server 端 `/api/apps/apple-music/<rest>` 透明 UDS 反代到本 sock 的 `/<re
 
 ## UI
 
-UI 实装放在子任务 5；当前 `ui/dist/index.js` 仅占位，避免 rust-embed 编译失败。
+`ui/` 是 Vite 独立打包的 React bundle（运行在主 server 的窗口里）。本地开发：
+
+```bash
+cd ui && pnpm install && pnpm build      # 一次性产出 ui/dist/
+# 或 pnpm dev — 进入 watch 模式自动重建
+```
+
+构建产物 `ui/dist/index.{js,css}` 会被主 server 反代到 `/api/apps/apple-music/__shell__/ui/<file>`。
