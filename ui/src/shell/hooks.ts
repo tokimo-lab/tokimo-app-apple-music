@@ -1,6 +1,7 @@
 import type { MediaSessionSource, MenuBarConfig } from "@tokimo/app-sdk";
 import {
   useShellMediaSession,
+  useShellMediaSessionSnapshot,
   useShellMenuBar,
   useShellToast,
   useShellWindowNav,
@@ -29,17 +30,22 @@ export function useMediaSessionRegister(source: MediaSessionSource | null) {
 
 export function useMediaSessionOptional() {
   const ctx = useAppCtx();
+  const snapshot = useShellMediaSessionSnapshot(ctx);
   return {
     requestPlay: (id: string, provider?: string) =>
       ctx.shell.media.requestPlay(id, provider),
     notifyPause: (id: string, provider?: string) =>
       ctx.shell.media.notifyPause(id, provider),
-    notifySaveNeeded: (_id: string, _provider?: string): void => {
-      /* no-op in standalone */
-    },
-    rawPlaybackData: null as null,
-    rawPlaybackDataReady: true as boolean,
-    activeSource: null as import("@tokimo/app-sdk").MediaSessionSource | null,
+    notifySaveNeeded: (
+      id: string,
+      provider?: string,
+      immediate?: boolean,
+    ): void => ctx.shell.media.notifySaveNeeded(id, provider, immediate),
+    activeSource: snapshot.activeSource,
+    rawPlaybackData: snapshot.rawPlaybackData as
+      | import("../api-types/PlaybackStateData").PlaybackStateData
+      | null,
+    rawPlaybackDataReady: snapshot.rawPlaybackDataReady,
   };
 }
 
