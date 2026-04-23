@@ -1,3 +1,6 @@
+[workspace]
+members = [".", "crates/rust-apple-music"]
+
 [package]
 name        = "tokimo-app-apple-music"
 version     = "0.1.0"
@@ -8,11 +11,11 @@ description = "Tokimo Apple Music app: developer-token scraping + webplayback pr
 repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
 
 [dependencies]
-tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "77087d91f518745f611e93d1b5b1871fc47f10d7" }
-tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "77087d91f518745f611e93d1b5b1871fc47f10d7" }
+tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "725ee17" }
+tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "725ee17" }
 
-# 复用 tokimo 主仓库里的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
-rust-apple-music    = { path = "../../packages/rust-apple-music" }
+# 复用从主仓库迁出的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
+rust-apple-music    = { path = "crates/rust-apple-music" }
 
 tokio              = { version = "1", features = ["rt-multi-thread", "macros", "time", "signal"] }
 tracing            = "0.1"
