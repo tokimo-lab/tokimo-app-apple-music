@@ -221,6 +221,7 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
       currentIndex: queuePosition,
       skipToIndex: skipToQueueIndex,
       getAnalyser,
+      buildPersistState: buildState,
     };
   }, [
     nowPlayingItem,
@@ -241,6 +242,7 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
     skipToQueueIndex,
     getAnalyser,
     hasRestoredState,
+    buildState,
   ]);
 
   useMediaSessionRegister(appleMediaSource);
