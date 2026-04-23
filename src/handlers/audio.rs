@@ -69,6 +69,7 @@ pub async fn get_decryption_key_handler(
 #[derive(Deserialize)]
 pub struct AudioQueryParams {
     #[serde(default)]
+    #[allow(dead_code)]
     pub quality: Option<String>,
 }
 

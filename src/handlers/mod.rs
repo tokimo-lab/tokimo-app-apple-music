@@ -27,6 +27,7 @@ use crate::openapi_client::OpenApiClient;
 
 pub struct AppCtx {
     pub openapi: Arc<OpenApiClient>,
+    #[allow(dead_code)]
     pub client: Arc<OnceLock<Arc<BusClient>>>,
 }
 

@@ -8,6 +8,7 @@ use axum::{
 use serde_json::json;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum AppError {
     BadRequest(String),
     NotFound(String),
@@ -18,6 +19,7 @@ pub enum AppError {
 }
 
 impl AppError {
+    #[allow(dead_code)]
     pub fn internal(msg: impl Into<String>) -> Self {
         Self::Internal(msg.into())
     }
