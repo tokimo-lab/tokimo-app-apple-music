@@ -1,6 +1,29 @@
 # tokimo-app-apple-music
 
-Apple Music 多进程 app（方案 3 形态：内嵌 axum + UDS）。
+Tokimo 桌面 OS 的 Apple Music 三方 app（多进程方案 3 形态：内嵌 axum + UDS）。
+
+> 这是 [`tokimo-lab/tokimo`](https://github.com/tokimo-lab/tokimo) 主仓库的 submodule。本仓库可独立 clone / 编译，也可以在主仓 `apps/tokimo-app-apple-music` 路径作为 submodule 工作。
+
+## 仓库结构
+
+```
+.
+├── Cargo.toml              # workspace root；members = [".", "crates/rust-apple-music"]
+├── src/                    # binary：axum app server + handlers (token / auth / proxy / audio …)
+├── crates/
+│   └── rust-apple-music/   # lib：HLS / ALAC / Widevine 解密栈，仅本 app 使用
+├── ui/                     # 前端 bundle（Vite 独立打包，运行在主 server 的窗口里）
+└── tokimo-app.toml         # app manifest（id / icon / window 类型 / binary 名）
+```
+
+## 编译
+
+```bash
+cargo build                     # 同时编译 binary + 内置 rust-apple-music crate
+cd ui && pnpm install && pnpm build   # 前端 bundle，输出到 ui/dist/
+```
+
+主仓 `make dev` 已经在 `packages/rust-server/dev-run.sh` 里追加了 standalone 构建步骤，会用 `CARGO_TARGET_DIR=<主仓>/target` 把 binary 编译到主仓的共享 `target/debug/` 下，主 server `app_loader::resolve_binary` 会自动找到。
 
 ## BE 设计要点
 
@@ -8,7 +31,8 @@ Apple Music 多进程 app（方案 3 形态：内嵌 axum + UDS）。
   `/openapi/user/preferences/*` 读写，本 binary 完全无 PostgreSQL 依赖
 - **token 缓存仅在内存**：`MusicKit` 开发者 token + webplayback stream URL 走
   `OnceLock<RwLock<...>>`，进程重启即重建（合理，token 本来就是 1h TTL）
-- **依赖 `rust-apple-music` crate**：复用 tokimo 主仓库已有的 HLS / ALAC 解密栈
+- **`rust-apple-music` crate**：HLS / ALAC / Widevine 解密栈，已内嵌到本仓库（原先在主仓
+  `packages/rust-apple-music`，因为只被本 app 使用，2025-04 移过来）
 
 ## 路由（与原 server `/api/apps/apple-music/*` 1:1 对齐）
 
