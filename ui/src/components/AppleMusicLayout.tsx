@@ -1,4 +1,4 @@
-import type { MenuBarConfig } from "@tokimo/app-sdk";
+import type { MenuBarConfig } from "@tokimo/sdk";
 import { Spin } from "@tokimo/ui";
 import { lazy, Suspense, useMemo } from "react";
 import { useContainerWidth } from "../hooks/use-container-width";

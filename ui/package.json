@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.95.2",
-    "@tokimo/app-sdk": "workspace:*",
+    "@tokimo/sdk": "workspace:*",
     "@tokimo/ui": "workspace:*",
     "lucide-react": "^0.460.0",
     "react": "^19.0.0",

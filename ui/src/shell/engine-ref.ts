@@ -1,4 +1,4 @@
-import type { LoadAndPlayOptions, ShellMediaApi } from "@tokimo/app-sdk";
+import type { LoadAndPlayOptions, ShellMediaApi } from "@tokimo/sdk";
 
 let _media: ShellMediaApi | null = null;
 

@@ -1,4 +1,4 @@
-import type { AppRuntimeCtx } from "@tokimo/app-sdk";
+import type { AppRuntimeCtx } from "@tokimo/sdk";
 import { createContext, useContext } from "react";
 
 const Ctx = createContext<AppRuntimeCtx | null>(null);

@@ -1,4 +1,4 @@
-import type { MediaSessionSource, MenuBarConfig } from "@tokimo/app-sdk";
+import type { MediaSessionSource, MenuBarConfig } from "@tokimo/sdk";
 import {
   useShellAppearance,
   useShellMediaSession,
@@ -6,7 +6,7 @@ import {
   useShellMenuBar,
   useShellToast,
   useShellWindowNav,
-} from "@tokimo/app-sdk/react";
+} from "@tokimo/sdk/react";
 import { useAppCtx } from "../AppContext";
 
 export function useMessage() {

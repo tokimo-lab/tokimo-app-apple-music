@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { Dispose } from "@tokimo/app-sdk";
-import { defineApp } from "@tokimo/app-sdk";
+import type { Dispose } from "@tokimo/sdk";
+import { defineApp } from "@tokimo/sdk";
 import {
   ConfigProvider,
   ToastProvider,

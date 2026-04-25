@@ -10,7 +10,7 @@
  * Extracted from AppleMusicProvider to keep the provider ≤ 500 lines.
  */
 
-import type { MediaSessionQueueItem } from "@tokimo/app-sdk";
+import type { MediaSessionQueueItem } from "@tokimo/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PlaybackStateData } from "../api-types/PlaybackStateData";
 import { usePlaybackStatePersistence } from "../hooks/usePlaybackStatePersistence";

@@ -15,7 +15,7 @@ const EXTERNAL = [
   "react-dom",
   "react-dom/client",
   "@tokimo/ui",
-  "@tokimo/app-sdk",
+  "@tokimo/sdk",
 ];
 
 export default defineConfig({
