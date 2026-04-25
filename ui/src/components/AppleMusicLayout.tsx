@@ -186,7 +186,7 @@ export function AppleMusicLayout() {
 
   return (
     <div ref={containerRef} className="flex h-full flex-col">
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         <AppleMusicSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapse={onToggleCollapse}

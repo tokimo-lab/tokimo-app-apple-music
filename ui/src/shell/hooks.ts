@@ -1,5 +1,6 @@
 import type { MediaSessionSource, MenuBarConfig } from "@tokimo/app-sdk";
 import {
+  useShellAppearance,
   useShellMediaSession,
   useShellMediaSessionSnapshot,
   useShellMenuBar,
@@ -50,5 +51,11 @@ export function useMediaSessionOptional() {
 }
 
 export function useThemeCore() {
-  return { isMacStyle: false };
+  const ctx = useAppCtx();
+  const appearance = useShellAppearance(ctx);
+  return {
+    isMacStyle: appearance.isMacStyle,
+    theme: appearance.theme,
+    titleBarStyle: appearance.titleBarStyle,
+  };
 }
