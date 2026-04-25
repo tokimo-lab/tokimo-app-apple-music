@@ -39,7 +39,7 @@ export default defineApp({
       <StrictMode>
         <AppCtxProvider value={ctx}>
           <QueryClientProvider client={queryClient}>
-            <ConfigProvider locale={locale} theme={{ defaultMode: ctx.theme }}>
+            <ConfigProvider locale={locale}>
               <ToastProvider>
                 <AppleMusicContent />
               </ToastProvider>
