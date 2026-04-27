@@ -130,7 +130,10 @@ pub async fn set_audio_quality(
         )
         .await?;
 
-    info!("[AppleMusic] User {} set audio quality to {:?}", caller.user_id, quality);
+    info!(
+        "[AppleMusic] User {} set audio quality to {:?}",
+        caller.user_id, quality
+    );
     Ok(ok(AudioQualityResponse {
         audio_quality: quality.as_str().to_string(),
     }))

@@ -15,7 +15,10 @@ pub enum AppError {
     Unauthorized(String),
     Internal(String),
     /// `OpenAPI` 调用返回的非 2xx，透传 status 与原始 body 文本（多半是 JSON）。
-    Upstream { status: StatusCode, body: String },
+    Upstream {
+        status: StatusCode,
+        body: String,
+    },
 }
 
 impl AppError {

@@ -4,8 +4,8 @@
 //! - DB 访问全部经过 `OpenApiClient` → server `/openapi/user/preferences/*`
 //! - 不依赖 `crate::AppState`，自己持有 `AppCtx`（无 db pool）
 
-pub mod auth;
 pub mod audio;
+pub mod auth;
 pub mod proxy;
 
 use std::sync::{Arc, OnceLock};
@@ -55,10 +55,7 @@ where
             .map(str::to_owned)
             .ok_or_else(|| AppError::Unauthorized("missing x-tokimo-user-id".into()))?;
         let cookie_header = collect_cookie_header(&parts.headers);
-        Ok(Self {
-            user_id,
-            cookie_header,
-        })
+        Ok(Self { user_id, cookie_header })
     }
 }
 
@@ -72,7 +69,8 @@ fn collect_cookie_header(headers: &HeaderMap) -> String {
 }
 
 pub fn parse_user_id(raw: &str) -> Result<Uuid, AppError> {
-    raw.parse::<Uuid>().map_err(|_| AppError::bad_request("Invalid user ID"))
+    raw.parse::<Uuid>()
+        .map_err(|_| AppError::bad_request("Invalid user ID"))
 }
 
 // ── Cached developer token ────────────────────────────────────────────────────
@@ -178,8 +176,7 @@ pub fn cache_catalog_response(url: &str, response_bytes: &[u8]) {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 pub const APPLE_MUSIC_URL: &str = "https://music.apple.com/us/browse";
-pub const USER_AGENT: &str =
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+pub const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 pub const APPLE_MUSIC_PREF_SCOPE: &str = "component";
 pub const APPLE_MUSIC_PREF_SCOPE_ID: &str = "apple-music-auth";
@@ -285,10 +282,7 @@ pub async fn get_developer_token() -> Result<String, AppError> {
 
 // ── User preferences helpers（走 OpenApi）──────────────────────────────────────
 
-pub async fn read_user_music_token(
-    openapi: &OpenApiClient,
-    cookie_header: &str,
-) -> Result<Option<String>, AppError> {
+pub async fn read_user_music_token(openapi: &OpenApiClient, cookie_header: &str) -> Result<Option<String>, AppError> {
     let value = openapi
         .pref_get(cookie_header, APPLE_MUSIC_PREF_SCOPE, APPLE_MUSIC_PREF_SCOPE_ID)
         .await?;

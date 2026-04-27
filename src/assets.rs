@@ -21,22 +21,14 @@ pub async fn serve(Path(path): Path<String>) -> Response {
         match tokio::fs::read(&full).await {
             Ok(b) => Bytes::from(b),
             Err(e) => {
-                return (
-                    StatusCode::NOT_FOUND,
-                    format!("asset {normalised}: {e}"),
-                )
-                    .into_response();
+                return (StatusCode::NOT_FOUND, format!("asset {normalised}: {e}")).into_response();
             }
         }
     } else {
         match EmbeddedUi::get(&normalised) {
             Some(f) => Bytes::from(f.data.into_owned()),
             None => {
-                return (
-                    StatusCode::NOT_FOUND,
-                    format!("embedded asset not found: {normalised}"),
-                )
-                    .into_response();
+                return (StatusCode::NOT_FOUND, format!("embedded asset not found: {normalised}")).into_response();
             }
         }
     };
