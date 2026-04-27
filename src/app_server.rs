@@ -1,15 +1,17 @@
-//! 内嵌 axum HTTP server，监听本地 UDS。
+//! 内嵌 axum HTTP server，监听本地 socket。
 //!
 //! server 端 `/api/apps/apple-music/<rest>` 透明反代到本 sock 的 `/<rest>`。
 
-use std::{path::PathBuf, sync::Arc};
+#[cfg(unix)]
+use std::path::PathBuf;
+use std::sync::Arc;
 
 use axum::{
     Router,
     routing::{get, post},
 };
-use tokimo_bus_protocol::DataPlaneSocket;
-use tokio::net::UnixListener;
+use tokimo_bus_protocol::{BusListener, DataPlaneSocket};
+use tower::Service;
 use tracing::{error, info};
 
 use crate::{
@@ -17,6 +19,7 @@ use crate::{
     handlers::{self, AppCtx},
 };
 
+#[cfg(unix)]
 fn default_socket_path(service: &str) -> anyhow::Result<PathBuf> {
     let bus = std::env::var("TOKIMO_BUS_SOCKET").map_err(|_| anyhow::anyhow!("TOKIMO_BUS_SOCKET not set"))?;
     let parent = PathBuf::from(&bus)
@@ -28,23 +31,62 @@ fn default_socket_path(service: &str) -> anyhow::Result<PathBuf> {
     Ok(apps_dir.join(format!("{service}.sock")))
 }
 
-pub async fn spawn(service: &str, ctx: Arc<AppCtx>) -> anyhow::Result<DataPlaneSocket> {
-    let path = default_socket_path(service)?;
-    let _ = std::fs::remove_file(&path);
-    let listener = UnixListener::bind(&path)?;
-    info!(path = %path.display(), "apple-music: app server listening");
+#[cfg(windows)]
+fn default_pipe_name(service: &str) -> String {
+    format!("tokimo-app-{}-{}", service, std::process::id())
+}
 
-    let router = build_router(ctx);
+pub async fn spawn(service: &str, ctx: Arc<AppCtx>) -> anyhow::Result<DataPlaneSocket> {
+    #[cfg(unix)]
+    let socket = {
+        let path = default_socket_path(service)?;
+        let _ = std::fs::remove_file(&path);
+        DataPlaneSocket::Unix {
+            path: path.to_string_lossy().into_owned(),
+        }
+    };
+
+    #[cfg(windows)]
+    let socket = DataPlaneSocket::NamedPipe {
+        name: default_pipe_name(service),
+    };
+
+    let mut listener = BusListener::bind(&socket)?;
+    info!(?socket, "apple-music: app server listening");
+
+    let app = build_router(ctx).into_make_service();
 
     tokio::spawn(async move {
-        if let Err(e) = axum::serve(listener, router).await {
-            error!(error = %e, "apple-music: app server stopped");
+        loop {
+            match listener.accept().await {
+                Ok(stream) => {
+                    let mut tower_service = app.clone();
+                    tokio::spawn(async move {
+                        let io = hyper_util::rt::TokioIo::new(stream);
+                        match tower_service.call(&()).await {
+                            Ok(service) => {
+                                let hyper_service = hyper_util::service::TowerToHyperService::new(service);
+                                if let Err(e) = hyper::server::conn::http1::Builder::new()
+                                    .serve_connection(io, hyper_service)
+                                    .await
+                                {
+                                    error!(error = %e, "apple-music: connection error");
+                                }
+                            }
+                            Err(e) => {
+                                error!(error = ?e, "apple-music: service creation failed");
+                            }
+                        }
+                    });
+                }
+                Err(e) => {
+                    error!(error = %e, "apple-music: accept failed");
+                }
+            }
         }
     });
 
-    Ok(DataPlaneSocket::Unix {
-        path: path.to_string_lossy().into_owned(),
-    })
+    Ok(socket)
 }
 
 fn build_router(ctx: Arc<AppCtx>) -> Router {
