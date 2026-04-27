@@ -12,7 +12,9 @@ const path = require("node:path");
 function findMonorepoRoot(start) {
   let dir = start;
   while (dir !== path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, "packages/tokimo-app-builder/package.json"))) {
+    if (
+      fs.existsSync(path.join(dir, "packages/tokimo-app-builder/package.json"))
+    ) {
       return dir;
     }
     dir = path.dirname(dir);
@@ -34,14 +36,20 @@ const fileOverrides = root
 
 // Fixed github: refs used as fallback for workspace:* in standalone mode
 const githubRefs = {
-  "@tokimo/ui": "github:tokimo-lab/tokimo-ui#67925b8147d21f7d5ac3db50a3601400b144b89d",
-  "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#2632b1b675b012735d54f85fee00b71b7f27e0c4",
-  "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#c50ec9f03da12154b98ada27fadd2e87215ab351",
-  "@tokimo/viewers": "github:tokimo-lab/tokimo-viewers#97f4742d3e21ca012403cc5849d7d643c52d9abe",
+  "@tokimo/ui":
+    "github:tokimo-lab/tokimo-ui#67925b8147d21f7d5ac3db50a3601400b144b89d",
+  "@tokimo/sdk":
+    "github:tokimo-lab/tokimo-package-sdk#2632b1b675b012735d54f85fee00b71b7f27e0c4",
+  "@tokimo/app-builder":
+    "github:tokimo-lab/tokimo-app-builder#c50ec9f03da12154b98ada27fadd2e87215ab351",
+  "@tokimo/viewers":
+    "github:tokimo-lab/tokimo-viewers#97f4742d3e21ca012403cc5849d7d643c52d9abe",
 };
 
 if (fileOverrides) {
-  console.log(`[tokimo .pnpmfile.cjs] monorepo detected at ${root}; overriding @tokimo/* to file: paths`);
+  console.log(
+    `[tokimo .pnpmfile.cjs] monorepo detected at ${root}; overriding @tokimo/* to file: paths`,
+  );
 }
 
 function rewriteSection(section) {
@@ -49,7 +57,11 @@ function rewriteSection(section) {
   for (const [name, spec] of Object.entries(section)) {
     if (fileOverrides && Object.hasOwn(fileOverrides, name)) {
       section[name] = fileOverrides[name];
-    } else if (!fileOverrides && spec === "workspace:*" && Object.hasOwn(githubRefs, name)) {
+    } else if (
+      !fileOverrides &&
+      spec === "workspace:*" &&
+      Object.hasOwn(githubRefs, name)
+    ) {
       // standalone mode: fix transitive workspace:* refs that would fail outside a workspace
       section[name] = githubRefs[name];
     }
