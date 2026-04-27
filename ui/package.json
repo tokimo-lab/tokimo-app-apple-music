@@ -16,7 +16,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#c50ec9f03da12154b98ada27fadd2e87215ab351",
+    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#90048ddf71aa332b5522c9fe26bcb1a379796064",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tailwindcss": "^4.2.2",
