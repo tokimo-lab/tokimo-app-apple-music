@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  NODE_OPTIONS: --max-old-space-size=4096
   RUST_BACKTRACE: 1
 
 jobs:
@@ -37,6 +38,11 @@ jobs:
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -71,6 +77,11 @@ jobs:
         run: |
           pnpm install --no-frozen-lockfile
           pnpm build
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
