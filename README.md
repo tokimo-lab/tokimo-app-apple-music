@@ -81,4 +81,16 @@ cd ui && pnpm install && pnpm build      # 一次性产出 ui/dist/
 # 或 pnpm dev — 进入 watch 模式自动重建
 ```
 
-构建产物 `ui/dist/index.{js,css}` 会被主 server 反代到 `/api/apps/apple-music/__shell__/ui/<file>`。
+构建产物 `ui/dist/index.{js,css}` 会被主 server 反代到 `/api/apps/apple-music/assets/<file>`。
+
+### 构建配置：`@tokimo/app-builder`
+
+`ui/vite.config.ts` 只有 `defineTokimoApp()` 一行，完整的 library 模式 + externals
+（react / react-dom / @tokimo/ui / @tokimo/sdk）由共享预设
+[`@tokimo/app-builder`](https://github.com/tokimo-lab/tokimo)（主仓
+`packages/tokimo-app-builder/`）提供。这些 external 由主 shell 在运行时通过
+`<script type="importmap">` + `window.__TKM_DEPS__` 注入同一份实例，避免重复打包
+React 引发 hooks 跨边界失效。
+
+> 当前通过 `workspace:*` 在主 monorepo 内解析。脱离主仓独立开发的方案（git
+> 依赖 / dev-only assets 注册接口）由 `@tokimo/app-builder` 后续阶段补齐。
