@@ -41,7 +41,7 @@ const githubRefs = {
   "@tokimo/sdk":
     "github:tokimo-lab/tokimo-package-sdk#2632b1b675b012735d54f85fee00b71b7f27e0c4",
   "@tokimo/app-builder":
-    "github:tokimo-lab/tokimo-app-builder#c50ec9f03da12154b98ada27fadd2e87215ab351",
+    "github:tokimo-lab/tokimo-app-builder#2232b1ba4fb9b7d61645c6588c579106bf6821dd",
   "@tokimo/viewers":
     "github:tokimo-lab/tokimo-viewers#97f4742d3e21ca012403cc5849d7d643c52d9abe",
 };

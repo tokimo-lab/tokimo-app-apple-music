@@ -8,19 +8,19 @@
     "dev": "vite build --watch"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.95.2",
+    "@tanstack/react-query": "^5.100.5",
     "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#2632b1b675b012735d54f85fee00b71b7f27e0c4",
     "@tokimo/ui": "github:tokimo-lab/tokimo-ui#67925b8147d21f7d5ac3db50a3601400b144b89d",
-    "lucide-react": "^0.460.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "lucide-react": "^1.11.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
-    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#90048ddf71aa332b5522c9fe26bcb1a379796064",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "tailwindcss": "^4.2.2",
-    "typescript": "^5.7.3",
-    "vite": "^6.0.7"
+    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#2232b1ba4fb9b7d61645c6588c579106bf6821dd",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
   }
 }
