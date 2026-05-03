@@ -12,7 +12,7 @@ repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
 
 [dependencies]
 tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "8b4fbac4ab2657cdeead0e74c6caa443a0980f4f" }
-tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "8b4fbac4ab2657cdeead0e74c6caa443a0980f4f" }
+tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "8b4fbac4ab2657cdeead0e74c6caa443a0980f4f", features = ["axum"] }
 
 # 复用从主仓库迁出的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
 rust-apple-music    = { path = "crates/rust-apple-music" }
@@ -31,11 +31,11 @@ futures-util       = "0.3"
 
 rust-embed         = { version = "8", features = ["debug-embed"] }
 mime_guess         = "2"
-hyper              = { version = "1", features = ["server", "http1"] }
-hyper-util         = { version = "0.1", features = ["tokio", "server", "http1"] }
-http-body-util     = "0.1"
 axum               = { version = "0.8", features = ["json"] }
-tower              = "0.5"
+
+[patch."https://github.com/tokimo-lab/tokimo-bus.git"]
+tokimo-bus-protocol = { path = "../../packages/tokimo-bus/crates/protocol" }
+tokimo-bus-client   = { path = "../../packages/tokimo-bus/crates/client" }
 
 [profile.release]
 lto       = "thin"

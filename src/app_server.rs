@@ -9,7 +9,6 @@ use axum::{
     routing::{get, post},
 };
 use tokimo_bus_protocol::{BusListener, DataPlaneSocket};
-use tower::Service;
 use tracing::{error, info};
 
 use crate::{
@@ -18,38 +17,14 @@ use crate::{
 };
 
 pub async fn spawn(service: &str, ctx: Arc<AppCtx>) -> anyhow::Result<DataPlaneSocket> {
-    let (mut listener, socket) = BusListener::bind_for_app(service)?;
+    let (listener, socket) = BusListener::bind_for_app(service)?;
     info!(?socket, "apple-music: app server listening");
 
-    let app = build_router(ctx).into_make_service();
+    let router = build_router(ctx);
 
     tokio::spawn(async move {
-        loop {
-            match listener.accept().await {
-                Ok(stream) => {
-                    let mut tower_service = app.clone();
-                    tokio::spawn(async move {
-                        let io = hyper_util::rt::TokioIo::new(stream);
-                        match tower_service.call(&()).await {
-                            Ok(service) => {
-                                let hyper_service = hyper_util::service::TowerToHyperService::new(service);
-                                if let Err(e) = hyper::server::conn::http1::Builder::new()
-                                    .serve_connection(io, hyper_service)
-                                    .await
-                                {
-                                    error!(error = %e, "apple-music: connection error");
-                                }
-                            }
-                            Err(e) => {
-                                error!(error = ?e, "apple-music: service creation failed");
-                            }
-                        }
-                    });
-                }
-                Err(e) => {
-                    error!(error = %e, "apple-music: accept failed");
-                }
-            }
+        if let Err(e) = axum::serve(listener, router).await {
+            error!(error = %e, "apple-music: app server stopped");
         }
     });
 
