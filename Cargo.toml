@@ -33,10 +33,6 @@ rust-embed         = { version = "8", features = ["debug-embed"] }
 mime_guess         = "2"
 axum               = { version = "0.8", features = ["json"] }
 
-[patch."https://github.com/tokimo-lab/tokimo-bus.git"]
-tokimo-bus-protocol = { path = "../../packages/tokimo-bus/crates/protocol" }
-tokimo-bus-client   = { path = "../../packages/tokimo-bus/crates/client" }
-
 [profile.release]
 lto       = "thin"
 opt-level = 3
