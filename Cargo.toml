@@ -1,11 +1,8 @@
-[workspace]
-members = [".", "crates/rust-apple-music"]
-
 [package]
 name        = "tokimo-app-apple-music"
 version     = "0.1.0"
 edition     = "2024"
-rust-version = "1.85"
+rust-version = "1.94.0"
 license     = "MIT OR Apache-2.0"
 description = "Tokimo Apple Music app: developer-token scraping + webplayback proxy + lossless decryption."
 repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
