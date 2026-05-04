@@ -11,8 +11,8 @@ description = "Tokimo Apple Music app: developer-token scraping + webplayback pr
 repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
 
 [dependencies]
-tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "8b4fbac4ab2657cdeead0e74c6caa443a0980f4f" }
-tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "8b4fbac4ab2657cdeead0e74c6caa443a0980f4f", features = ["axum"] }
+tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082" }
+tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082", features = ["axum"] }
 
 # 复用从主仓库迁出的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
 rust-apple-music    = { path = "crates/rust-apple-music" }
