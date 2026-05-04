@@ -2,6 +2,7 @@
 name = "rust-apple-music"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.94.0"
 description = "Apple Music DRM decryption, stream download and CDM implementation"
 
 
