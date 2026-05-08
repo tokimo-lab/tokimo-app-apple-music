@@ -19,7 +19,7 @@ mod openapi_client;
 use std::sync::{Arc, OnceLock};
 
 use clap::{Parser, Subcommand};
-use tokimo_bus_auth::cli::TokimoAuthArgs;
+use tokimo_bus_cli::TokimoAuthArgs;
 use tokimo_bus_client::{BusClient, ClientConfig};
 use tracing::{error, info};
 
@@ -63,8 +63,8 @@ async fn main() -> anyhow::Result<()> {
         }
         None => {
             use clap::CommandFactory;
-            Cli::command().print_help().ok();
-            println!();
+            let mut cmd = Cli::command();
+            tokimo_bus_cli::print_help_unified(&mut cmd);
             std::process::exit(0);
         }
         Some(cmd) => {

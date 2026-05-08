@@ -3,10 +3,8 @@
 //! TODO: add Apple Music-specific subcommands (e.g. list playlists, play, status).
 
 use anyhow::Context;
-use tokimo_bus_auth::{
-    cli::{Credentials, TokimoAuthArgs},
-    db::{connect_db, verify_token},
-};
+use tokimo_bus_auth::db::{connect_db, verify_token};
+use tokimo_bus_cli::{Credentials, TokimoAuthArgs};
 
 /// Run the `status` subcommand: authenticate then print a placeholder.
 pub async fn run_status(auth: TokimoAuthArgs) -> anyhow::Result<()> {
