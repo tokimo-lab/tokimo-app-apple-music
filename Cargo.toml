@@ -10,6 +10,7 @@ repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
 [dependencies]
 tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082" }
 tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082", features = ["axum"] }
+tokimo-bus-auth     = { path = "../../packages/tokimo-bus/crates/auth", features = ["axum", "cli", "cli-db"] }
 
 # 复用从主仓库迁出的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
 rust-apple-music    = { path = "crates/rust-apple-music" }
@@ -25,7 +26,8 @@ anyhow             = "1"
 regex              = "1"
 reqwest            = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 futures-util       = "0.3"
-
+clap               = { version = "4", features = ["derive", "env"] }
+sea-orm            = { version = "2.0.0-rc.37", default-features = false, features = ["sqlx-postgres", "runtime-tokio-rustls", "with-uuid", "with-chrono", "macros"] }
 rust-embed         = { version = "8", features = ["debug-embed"] }
 mime_guess         = "2"
 axum               = { version = "0.8", features = ["json"] }

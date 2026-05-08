@@ -10,7 +10,7 @@ lifecycle    = "resident"
 binary       = "tokimo-app-apple-music"
 ui_dist      = "ui/dist"
 # apple-music 不持有自己的表，user_preferences 通过 server /openapi 调用
-# db_schema 字段省略 = 不注入 DATABASE_URL（binary 完全无 DB 依赖）
+# binary 完全无 DB 依赖
 
 [ui]
 entry        = "assets/index.js"
