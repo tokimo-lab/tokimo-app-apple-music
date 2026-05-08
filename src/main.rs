@@ -48,7 +48,7 @@ async fn main() -> anyhow::Result<()> {
     let Cli { auth, command } = Cli::parse();
 
     match command {
-        None => {
+        None if std::env::var_os("TOKIMO_BUS_SOCKET").is_some() => {
             // server 模式：由 supervisor 无参拉起，初始化 tracing
             tracing_subscriber::fmt()
                 .with_env_filter(
@@ -60,6 +60,12 @@ async fn main() -> anyhow::Result<()> {
                 error!(error = %e, "apple-music: fatal");
                 std::process::exit(1);
             }
+        }
+        None => {
+            use clap::CommandFactory;
+            Cli::command().print_help().ok();
+            println!();
+            std::process::exit(0);
         }
         Some(cmd) => {
             // CLI 模式：纯文本错误，不输出 tracing 日志
