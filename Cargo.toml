@@ -8,10 +8,10 @@ description = "Tokimo Apple Music app: developer-token scraping + webplayback pr
 repository  = "https://github.com/tokimo-lab/tokimo-app-apple-music"
 
 [dependencies]
-tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082" }
-tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "dfb4c5af9a2e2425d6f2685e55064eab82530082", features = ["axum"] }
-tokimo-bus-auth     = { path = "../../packages/tokimo-bus/crates/auth", features = ["axum", "cli-db"] }
-tokimo-bus-cli      = { path = "../../packages/tokimo-bus/crates/cli" }
+tokimo-bus-client   = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "b68aa99c846fbe9e201df5b6a7ea91d84b642340" }
+tokimo-bus-protocol = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "b68aa99c846fbe9e201df5b6a7ea91d84b642340", features = ["axum"] }
+tokimo-bus-auth     = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "b68aa99c846fbe9e201df5b6a7ea91d84b642340", features = ["axum", "cli-db"] }
+tokimo-bus-cli      = { git = "https://github.com/tokimo-lab/tokimo-bus.git", rev = "b68aa99c846fbe9e201df5b6a7ea91d84b642340" }
 
 # 复用从主仓库迁出的 rust-apple-music crate（音频下载 / 解密 / HLS 流）
 rust-apple-music    = { path = "crates/rust-apple-music" }
