@@ -23,7 +23,7 @@ cargo build                     # 同时编译 binary + 内置 rust-apple-music 
 cd ui && pnpm install && pnpm build   # 前端 bundle，输出到 ui/dist/
 ```
 
-主仓 `make dev` 已经在 `packages/rust-server/dev-run.sh` 里追加了 standalone 构建步骤，会用 `CARGO_TARGET_DIR=<主仓>/target` 把 binary 编译到主仓的共享 `target/debug/` 下，主 server `app_loader::resolve_binary` 会自动找到。
+主仓 `bun dev` 已经在 `packages/rust-server/dev-run.sh` 里追加了 standalone 构建步骤，会用 `CARGO_TARGET_DIR=<主仓>/target` 把 binary 编译到主仓的共享 `target/debug/` 下，主 server `app_loader::resolve_binary` 会自动找到。
 
 ## BE 设计要点
 
