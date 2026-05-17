@@ -25,7 +25,7 @@ uuid               = { version = "1", features = ["v4", "serde"] }
 chrono             = { version = "0.4", features = ["serde"] }
 anyhow             = "1"
 regex              = "1"
-reqwest            = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+reqwest            = { version = "0.13", default-features = false, features = ["json", "rustls", "stream"] }
 futures-util       = "0.3"
 clap               = { version = "4", features = ["derive", "env"] }
 sea-orm            = { version = "2.0.0-rc.37", default-features = false, features = ["sqlx-postgres", "runtime-tokio-rustls", "with-uuid", "with-chrono", "macros"] }
