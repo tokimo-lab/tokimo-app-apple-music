@@ -25,7 +25,7 @@ title_bar_style = "overlay"
 full_bleed   = true
 
 [cli]
-name = "apple-music"
+name = "tokimo-app-apple-music"
 description = """\
 Query Apple Music catalog (songs, albums) for the current user. Subcommands:
   status                          — verify auth + show user_id
