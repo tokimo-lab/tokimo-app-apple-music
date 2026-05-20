@@ -23,6 +23,7 @@ width        = 1100
 height       = 720
 title_bar_style = "overlay"
 full_bleed   = true
+background    = true
 
 [cli]
 name = "tokimo-app-apple-music"
