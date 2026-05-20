@@ -12,7 +12,7 @@ use crate::error::{ApiResponse, AppError, ok};
 
 use super::{
     APPLE_MUSIC_PREF_SCOPE, APPLE_MUSIC_PREF_SCOPE_ID, APPLE_MUSIC_PREF_TOKEN_KEY, APPLE_MUSIC_QUALITY_KEY,
-    APPLE_MUSIC_SETTINGS_SCOPE_ID, AppCaller, AppCtx, get_developer_token, parse_user_id, read_user_audio_quality,
+    APPLE_MUSIC_SETTINGS_SCOPE_ID, AppCaller, AppCtx, api, parse_user_id, read_user_audio_quality,
     read_user_music_token,
 };
 
@@ -27,7 +27,7 @@ pub struct AppleMusicTokenResponse {
 pub async fn get_apple_music_token(
     State(_ctx): State<Arc<AppCtx>>,
 ) -> Result<RespJson<ApiResponse<AppleMusicTokenResponse>>, AppError> {
-    let token = get_developer_token().await.map_err(|e| {
+    let token = api::get_developer_token().await.map_err(|e| {
         warn!("[AppleMusic] Failed to get developer token: {e}");
         e
     })?;
@@ -75,6 +75,39 @@ pub async fn save_apple_music_auth(
             value,
         )
         .await?;
+
+    // Detect and store the user's storefront region
+    match super::api::get_user_storefront_from_api(&body.music_user_token).await {
+        Ok(storefront) => {
+            // Merge into existing settings to preserve audioQuality etc.
+            let existing = ctx
+                .openapi
+                .pref_get(
+                    &caller.cookie_header,
+                    APPLE_MUSIC_PREF_SCOPE,
+                    APPLE_MUSIC_SETTINGS_SCOPE_ID,
+                )
+                .await
+                .ok()
+                .flatten()
+                .unwrap_or_else(|| serde_json::json!({}));
+            let mut settings = existing;
+            settings["storefront"] = serde_json::json!(storefront);
+            let _ = ctx
+                .openapi
+                .pref_put(
+                    &caller.cookie_header,
+                    APPLE_MUSIC_PREF_SCOPE,
+                    APPLE_MUSIC_SETTINGS_SCOPE_ID,
+                    settings,
+                )
+                .await;
+        }
+        Err(e) => {
+            warn!("[AppleMusic] Failed to detect storefront on login: {e}");
+        }
+    }
+
     Ok(ok(AppleMusicAuthStatus { has_token: true }))
 }
 

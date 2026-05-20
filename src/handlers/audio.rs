@@ -42,16 +42,27 @@ pub async fn get_decryption_key_handler(
     caller: AppCaller,
     Json(body): Json<DecryptKeyRequest>,
 ) -> Result<RespJson<ApiResponse<DecryptKeyResponse>>, AppError> {
-    let dev_token = get_developer_token().await?;
     let music_user_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
         .await?
         .ok_or_else(|| AppError::bad_request("No music-user-token stored. Please login to Apple Music first."))?;
 
     info!("[AppleMusic] get-key request for track {}", body.track_id);
 
-    let result = download::get_decryption_key(&dev_token, &music_user_token, &body.track_id, AudioQuality::default())
-        .await
-        .map_err(|e| AppError::Internal(format!("Decryption pipeline failed: {e}")))?;
+    let track_id = body.track_id.clone();
+    let user_token = music_user_token.clone();
+    let result = super::api::call_with_dev_token_retry("get_decryption_key", || {
+        let track_id = track_id.clone();
+        let user_token = user_token.clone();
+        async move {
+            let token = get_developer_token()
+                .await
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+            download::get_decryption_key(&token, &user_token, &track_id, AudioQuality::default())
+                .await
+                .map_err(|e| AppError::Internal(format!("Decryption pipeline failed: {e}")))
+        }
+    })
+    .await?;
 
     Ok(ok(DecryptKeyResponse {
         track_id: result.track_id,
@@ -80,7 +91,6 @@ pub async fn get_audio_handler(
     axum::extract::Path(track_id): axum::extract::Path<String>,
     axum::extract::Query(_query): axum::extract::Query<AudioQueryParams>,
 ) -> Result<axum::response::Response, AppError> {
-    let dev_token = get_developer_token().await?;
     let music_user_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
         .await?
         .ok_or_else(|| AppError::bad_request("No music-user-token stored. Please login to Apple Music first."))?;
@@ -107,17 +117,25 @@ pub async fn get_audio_handler(
     }
 
     let cache_dir = std::env::temp_dir().join("tokimo_am_cache");
+    let user_token = music_user_token.clone();
+    let tid = track_id.clone();
+    let cached = cached_url.clone();
 
-    let path = stream::download_decrypted_audio(
-        &dev_token,
-        &music_user_token,
-        &track_id,
-        &cache_dir,
-        cached_url.as_deref(),
-        quality,
-    )
-    .await
-    .map_err(|e| AppError::Internal(format!("Audio stream failed: {e}")))?;
+    let path = super::api::call_with_dev_token_retry("get_audio", || {
+        let user_token = user_token.clone();
+        let tid = tid.clone();
+        let cached = cached.clone();
+        let cache = cache_dir.clone();
+        async move {
+            let token = get_developer_token()
+                .await
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+            stream::download_decrypted_audio(&token, &user_token, &tid, &cache, cached.as_deref(), quality)
+                .await
+                .map_err(|e| AppError::Internal(format!("Audio stream failed: {e}")))
+        }
+    })
+    .await?;
 
     let data = tokio::fs::read(&path)
         .await
@@ -195,15 +213,34 @@ pub async fn get_audio_debug_handler(
     caller: AppCaller,
     axum::extract::Path(track_id): axum::extract::Path<String>,
 ) -> Result<RespJson<serde_json::Value>, AppError> {
-    let dev_token = get_developer_token().await?;
     let music_user_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
         .await?
         .ok_or_else(|| AppError::bad_request("No music-user-token stored. Please login to Apple Music first."))?;
 
+    let user_token = music_user_token.clone();
+    let tid = track_id.clone();
+    let result = super::api::call_with_dev_token_retry("audio_debug", || {
+        let user_token = user_token.clone();
+        let tid = tid.clone();
+        async move {
+            let token = get_developer_token()
+                .await
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+            run_audio_debug(&token, &user_token, &tid)
+                .await
+                .map_err(|e| AppError::Internal(format!("Audio debug failed: {e}")))
+        }
+    })
+    .await?;
+
+    Ok(RespJson(result))
+}
+
+async fn run_audio_debug(dev_token: &str, music_user_token: &str, track_id: &str) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::builder()
         .user_agent(USER_AGENT)
         .build()
-        .map_err(|e| AppError::Internal(format!("HTTP client error: {e}")))?;
+        .map_err(|e| format!("HTTP client error: {e}"))?;
 
     let mut result = serde_json::json!({});
 
@@ -211,7 +248,7 @@ pub async fn get_audio_debug_handler(
     let storefront_resp = client
         .get("https://amp-api.music.apple.com/v1/me/account")
         .header("Authorization", format!("Bearer {dev_token}"))
-        .header("Media-User-Token", &music_user_token)
+        .header("Media-User-Token", music_user_token)
         .header("Origin", "https://music.apple.com")
         .query(&[("meta", "subscription")])
         .send()
@@ -240,7 +277,7 @@ pub async fn get_audio_debug_handler(
     let catalog_resp = client
         .get(&catalog_url)
         .header("Authorization", format!("Bearer {dev_token}"))
-        .header("Media-User-Token", &music_user_token)
+        .header("Media-User-Token", music_user_token)
         .header("Origin", "https://music.apple.com")
         .query(&[("extend", "extendedAssetUrls"), ("include", "albums")])
         .send()
@@ -261,14 +298,11 @@ pub async fn get_audio_debug_handler(
     let wp_resp = client
         .post("https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/webPlayback")
         .header("Authorization", format!("Bearer {dev_token}"))
-        .header("Media-User-Token", &music_user_token)
+        .header("Media-User-Token", music_user_token)
         .header("Origin", "https://music.apple.com")
         .header("Referer", "https://music.apple.com/")
         .header("Content-Type", "application/json")
-        .header(
-            reqwest::header::COOKIE,
-            format!("media-user-token={}", &music_user_token),
-        )
+        .header(reqwest::header::COOKIE, format!("media-user-token={music_user_token}"))
         .json(&serde_json::json!({
             "salableAdamId": track_id,
             "language": "en-US",
@@ -296,7 +330,7 @@ pub async fn get_audio_debug_handler(
             let alt_resp = client
                 .get(&alt_url)
                 .header("Authorization", format!("Bearer {dev_token}"))
-                .header("Media-User-Token", &music_user_token)
+                .header("Media-User-Token", music_user_token)
                 .header("Origin", "https://music.apple.com")
                 .query(&[("extend", "extendedAssetUrls")])
                 .send()
@@ -333,7 +367,7 @@ pub async fn get_audio_debug_handler(
     let lib_resp = client
         .get(&lib_url)
         .header("Authorization", format!("Bearer {dev_token}"))
-        .header("Media-User-Token", &music_user_token)
+        .header("Media-User-Token", music_user_token)
         .header("Origin", "https://music.apple.com")
         .send()
         .await;
@@ -350,7 +384,7 @@ pub async fn get_audio_debug_handler(
     }
 
     let cached = stream_cache().read().await;
-    if let Some(entry) = cached.get(&track_id) {
+    if let Some(entry) = cached.get(track_id) {
         result["stream_cache"] = serde_json::json!({
             "url": &entry.stream_url[..entry.stream_url.len().min(120)],
             "age_secs": entry.fetched_at.elapsed().as_secs(),
@@ -360,5 +394,5 @@ pub async fn get_audio_debug_handler(
         result["stream_cache_keys"] = serde_json::json!(cached.keys().take(10).cloned().collect::<Vec<_>>());
     }
 
-    Ok(RespJson(result))
+    Ok(result)
 }

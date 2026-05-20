@@ -4,9 +4,12 @@
 //! - DB 访问全部经过 `OpenApiClient` → server `/openapi/user/preferences/*`
 //! - 不依赖 `crate::AppState`，自己持有 `AppCtx`（无 db pool）
 
+pub mod api;
 pub mod audio;
 pub mod auth;
 pub mod proxy;
+
+pub use api::{USER_AGENT, get_developer_token, invalidate_developer_token};
 
 use std::sync::{Arc, OnceLock};
 
@@ -16,7 +19,7 @@ use axum::{
 };
 use std::collections::HashMap;
 use tokio::sync::RwLock;
-use tracing::{debug, info};
+use tracing::info;
 use uuid::Uuid;
 
 use rust_apple_music::AudioQuality;
@@ -71,22 +74,6 @@ fn collect_cookie_header(headers: &HeaderMap) -> String {
 pub fn parse_user_id(raw: &str) -> Result<Uuid, AppError> {
     raw.parse::<Uuid>()
         .map_err(|_| AppError::bad_request("Invalid user ID"))
-}
-
-// ── Cached developer token ────────────────────────────────────────────────────
-
-#[derive(Clone)]
-struct CachedToken {
-    token: String,
-    fetched_at: std::time::Instant,
-}
-
-const TOKEN_TTL_SECS: u64 = 3600;
-
-static TOKEN_CACHE: std::sync::OnceLock<RwLock<Option<CachedToken>>> = std::sync::OnceLock::new();
-
-fn cache() -> &'static RwLock<Option<CachedToken>> {
-    TOKEN_CACHE.get_or_init(|| RwLock::new(None))
 }
 
 // ── Webplayback stream cache ──────────────────────────────────────────────────
@@ -175,9 +162,6 @@ pub fn cache_catalog_response(url: &str, response_bytes: &[u8]) {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-pub const APPLE_MUSIC_URL: &str = "https://music.apple.com/us/browse";
-pub const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-
 pub const APPLE_MUSIC_PREF_SCOPE: &str = "component";
 pub const APPLE_MUSIC_PREF_SCOPE_ID: &str = "apple-music-auth";
 pub const APPLE_MUSIC_PREF_TOKEN_KEY: &str = "appleMusicToken";
@@ -195,89 +179,6 @@ pub const ALLOWED_APPLE_HOSTS: &[&str] = &[
 
 pub fn is_allowed_apple_host(host: &str) -> bool {
     ALLOWED_APPLE_HOSTS.contains(&host) || host.ends_with(".mzstatic.com")
-}
-
-// ── Token scraping ────────────────────────────────────────────────────────────
-
-async fn scrape_developer_token() -> Result<String, AppError> {
-    use regex::Regex;
-
-    let client = reqwest::Client::builder()
-        .user_agent(USER_AGENT)
-        .build()
-        .map_err(|e| AppError::Internal(format!("HTTP client error: {e}")))?;
-
-    let html = client
-        .get(APPLE_MUSIC_URL)
-        .send()
-        .await
-        .map_err(|e| AppError::Internal(format!("Failed to fetch Apple Music page: {e}")))?
-        .text()
-        .await
-        .map_err(|e| AppError::Internal(format!("Failed to read page body: {e}")))?;
-
-    let js_path_re = Regex::new(r"/assets/index[~-][a-zA-Z0-9._-]+\.js")
-        .map_err(|e| AppError::Internal(format!("Regex error: {e}")))?;
-
-    let js_path = js_path_re
-        .find(&html)
-        .map(|m| m.as_str().to_string())
-        .ok_or_else(|| AppError::Internal("Could not find JS bundle path in Apple Music page".into()))?;
-
-    let js_url = format!("https://music.apple.com{js_path}");
-    debug!("[AppleMusic] Fetching JS bundle: {js_url}");
-
-    let js_content = client
-        .get(&js_url)
-        .send()
-        .await
-        .map_err(|e| AppError::Internal(format!("Failed to fetch JS bundle: {e}")))?
-        .text()
-        .await
-        .map_err(|e| AppError::Internal(format!("Failed to read JS bundle: {e}")))?;
-
-    let token_re = Regex::new(r#""(eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6[^"]+)""#)
-        .map_err(|e| AppError::Internal(format!("Regex error: {e}")))?;
-
-    if let Some(cap) = token_re.captures(&js_content) {
-        return Ok(cap[1].to_string());
-    }
-
-    let jwt_re = Regex::new(r#""(eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,})""#)
-        .map_err(|e| AppError::Internal(format!("Regex error: {e}")))?;
-
-    if let Some(cap) = jwt_re.captures(&js_content) {
-        return Ok(cap[1].to_string());
-    }
-
-    Err(AppError::Internal(
-        "Could not extract developer token from Apple Music JS bundle".into(),
-    ))
-}
-
-pub async fn get_developer_token() -> Result<String, AppError> {
-    {
-        let guard = cache().read().await;
-        if let Some(cached) = guard.as_ref()
-            && cached.fetched_at.elapsed().as_secs() < TOKEN_TTL_SECS
-        {
-            return Ok(cached.token.clone());
-        }
-    }
-
-    debug!("[AppleMusic] Scraping fresh developer token...");
-    let token = scrape_developer_token().await?;
-    debug!("[AppleMusic] Token obtained ({} chars)", token.len());
-
-    {
-        let mut guard = cache().write().await;
-        *guard = Some(CachedToken {
-            token: token.clone(),
-            fetched_at: std::time::Instant::now(),
-        });
-    }
-
-    Ok(token)
 }
 
 // ── User preferences helpers（走 OpenApi）──────────────────────────────────────

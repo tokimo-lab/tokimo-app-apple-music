@@ -295,6 +295,12 @@ async fn get_stream_info_modern(
         .await
         .map_err(|e| format!("Failed to fetch song metadata: {e}"))?;
 
+    if !resp.status().is_success() {
+        let status = resp.status();
+        let body = resp.text().await.unwrap_or_default();
+        return Err(format!("Song metadata returned {status}: {body}"));
+    }
+
     let body: serde_json::Value = resp
         .json()
         .await
@@ -596,12 +602,8 @@ async fn get_webplayback(
         &body_text[..body_text.len().min(500)]
     );
 
-    serde_json::from_str::<WebplaybackResponse>(&body_text).map_err(|e| {
-        format!(
-            "Failed to parse webplayback JSON: {e}\nBody: {}",
-            &body_text[..body_text.len().min(200)]
-        )
-    })
+    serde_json::from_str::<WebplaybackResponse>(&body_text)
+        .map_err(|e| format!("Failed to parse webplayback JSON: {e}\nBody: {body_text}"))
 }
 
 // ── License exchange ────────────────────────────────────────────────────────
@@ -723,6 +725,12 @@ async fn resolve_library_to_catalog(
         .send()
         .await
         .map_err(|e| format!("Failed to resolve library ID: {e}"))?;
+
+    if !resp.status().is_success() {
+        let status = resp.status();
+        let body = resp.text().await.unwrap_or_default();
+        return Err(format!("Library resolution returned {status}: {body}"));
+    }
 
     let body: serde_json::Value = resp
         .json()

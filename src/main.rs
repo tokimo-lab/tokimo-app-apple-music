@@ -16,6 +16,7 @@ mod error;
 mod handlers;
 mod openapi_client;
 
+use std::path::PathBuf;
 use std::sync::{Arc, OnceLock};
 
 use clap::{Parser, Subcommand};
@@ -41,6 +42,39 @@ struct Cli {
 enum Command {
     /// 检查 Apple Music 连接状态（认证 + 占位输出）。
     Status,
+    /// 搜索 Apple Music 目录（歌曲、专辑）。
+    Search {
+        /// 搜索关键词
+        query: String,
+        /// 搜索类型，逗号分隔 (songs,albums)
+        #[arg(short, long, default_value = "songs,albums")]
+        types: String,
+        /// 每种类型最多返回的结果数
+        #[arg(short, long, default_value_t = 25)]
+        limit: u32,
+        /// 页码（从 1 开始）
+        #[arg(short, long, default_value_t = 1)]
+        page: u32,
+    },
+    /// 查看专辑详情（曲目列表、发行日期、厂牌等）。
+    Album {
+        /// Apple Music 专辑 ID
+        album_id: String,
+        /// 输出原始 JSON 响应
+        #[arg(long)]
+        raw: bool,
+    },
+    /// 下载并解密一首歌曲到本地文件。
+    Download {
+        /// Apple Music track ID
+        track_id: String,
+        /// 输出文件路径或目录
+        #[arg(short, long, default_value = ".")]
+        output: PathBuf,
+        /// 音质: lossless, high, standard
+        #[arg(short, long, default_value = "high")]
+        quality: String,
+    },
 }
 
 #[tokio::main]
@@ -71,6 +105,18 @@ async fn main() -> anyhow::Result<()> {
             // CLI 模式：纯文本错误，不输出 tracing 日志
             let result = match cmd {
                 Command::Status => cli::run_status(auth).await,
+                Command::Album { album_id, raw } => cli::run_album(auth, album_id, raw).await,
+                Command::Search {
+                    query,
+                    types,
+                    limit,
+                    page,
+                } => cli::run_search(auth, query, types, limit, page).await,
+                Command::Download {
+                    track_id,
+                    output,
+                    quality,
+                } => cli::run_download(auth, track_id, output, quality).await,
             };
             if let Err(error) = result {
                 eprintln!("Error: {error:#}");
