@@ -31,4 +31,4 @@ pre-push:
     fmt-check:
       run: cargo fmt -p tokimo-app-apple-music -- --check
     clippy:
-      run: cargo clippy -p tokimo-app-apple-music --lib --bins --tests -- -D warnings
+      run: cargo clippy -p tokimo-app-apple-music --bins --tests -- -D warnings

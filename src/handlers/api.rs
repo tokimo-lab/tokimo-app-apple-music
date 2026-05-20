@@ -116,19 +116,18 @@ pub async fn get_developer_token() -> Result<String, AppError> {
 
     // 2. File cache (survives across CLI invocations)
     let cache_path = token_cache_path();
-    if let Ok(content) = std::fs::read_to_string(&cache_path) {
-        if let Some((ts_str, token)) = content.split_once('\n')
-            && let Ok(ts) = ts_str.parse::<u64>()
-            && ts + TOKEN_TTL_SECS > now_secs()
-        {
-            // Refresh in-memory cache too
-            let mut guard = cache().write().await;
-            *guard = Some(CachedToken {
-                token: token.to_string(),
-                fetched_at: std::time::Instant::now() - std::time::Duration::from_secs(now_secs().saturating_sub(ts)),
-            });
-            return Ok(token.to_string());
-        }
+    if let Ok(content) = std::fs::read_to_string(&cache_path)
+        && let Some((ts_str, token)) = content.split_once('\n')
+        && let Ok(ts) = ts_str.parse::<u64>()
+        && ts + TOKEN_TTL_SECS > now_secs()
+    {
+        // Refresh in-memory cache too
+        let mut guard = cache().write().await;
+        *guard = Some(CachedToken {
+            token: token.to_string(),
+            fetched_at: std::time::Instant::now() - std::time::Duration::from_secs(now_secs().saturating_sub(ts)),
+        });
+        return Ok(token.to_string());
     }
 
     // 3. Scrape from Apple
@@ -245,7 +244,7 @@ pub async fn get_user_storefront_from_api(music_user_token: &str) -> Result<Stri
             let resp = client
                 .get(format!("{AMP_API_URL}/v1/me/storefront"))
                 .header("Authorization", format!("Bearer {dev_token}"))
-                .header("Media-User-Token", &user_token)
+                .header("Media-User-Token", user_token.as_str())
                 .header("Origin", "https://music.apple.com")
                 .header(reqwest::header::COOKIE, format!("media-user-token={user_token}"))
                 .send()
@@ -498,6 +497,7 @@ pub async fn get_album_detail(
                 .map_err(|e| format!("HTTP client error: {e}"))?;
 
             let url = format!("{AMP_API_URL}/v1/catalog/{storefront}/albums/{album_id}");
+            debug!("[AppleMusic] Album detail request: url={url}, storefront={storefront}");
 
             let mut req = client
                 .get(&url)
@@ -513,16 +513,25 @@ pub async fn get_album_detail(
 
             let resp = req.send().await.map_err(|e| format!("Apple Music API error: {e}"))?;
 
+            debug!("[AppleMusic] Album detail response: status={}", resp.status());
+
             if !resp.status().is_success() {
                 let status = resp.status();
                 let body = resp.text().await.unwrap_or_default();
                 return Err(format!("Apple Music API returned {status}: {body}"));
             }
 
-            let json: serde_json::Value = resp
-                .json()
+            let body_text = resp
+                .text()
                 .await
-                .map_err(|e| format!("Failed to parse album response: {e}"))?;
+                .map_err(|e| format!("Failed to read album response: {e}"))?;
+            debug!(
+                "[AppleMusic] Album detail raw response (first 2000 chars): {}",
+                &body_text[..body_text.len().min(2000)]
+            );
+
+            let json: serde_json::Value =
+                serde_json::from_str(&body_text).map_err(|e| format!("Failed to parse album response: {e}"))?;
 
             let album = json
                 .pointer("/data/0")
@@ -531,6 +540,18 @@ pub async fn get_album_detail(
             let attrs = album
                 .get("attributes")
                 .ok_or_else(|| "No attributes in album response".to_string())?;
+
+            debug!(
+                "[AppleMusic] Album detail raw attrs: url={:?}, name={:?}, artistName={:?}, storefront_in_url={:?}",
+                attrs["url"],
+                attrs["name"],
+                attrs["artistName"],
+                attrs["url"].as_str().and_then(|u| u.split('/').nth(4)),
+            );
+            debug!(
+                "[AppleMusic] Album detail full JSON keys: {}",
+                serde_json::to_string(&attrs).unwrap_or_default()
+            );
 
             let mut tracks = Vec::new();
             if let Some(track_data) = json

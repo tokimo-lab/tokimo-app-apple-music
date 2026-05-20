@@ -149,17 +149,15 @@ pub async fn run_album(auth: TokimoAuthArgs, album_id: String, raw: bool) -> any
     if let Some(ref notes) = detail.editorial_notes_short {
         println!("  Summary:   {notes}");
     }
-    if let Some(ref url) = detail.url {
-        println!("  URL:       {url}");
-    }
+    println!("  URL:       https://music.apple.com/{storefront}/album/{album_id}");
     println!("  ID:        {}", detail.id);
 
     // Track listing
     if !detail.tracks.is_empty() {
         println!();
         println!(
-            "  {:<12} {:<4} {:<4} {:<40} {:<20} {:<8} {}",
-            "ID", "Disc", "#", "Name", "Artist", "Duration", "Composer"
+            "  {:<12} {:<4} {:<4} {:<40} {:<20} {:<8} Composer",
+            "ID", "Disc", "#", "Name", "Artist", "Duration"
         );
         println!("  {}", "-".repeat(110));
         for t in &detail.tracks {
@@ -203,8 +201,8 @@ pub async fn run_search(
     if !results.songs.is_empty() {
         println!("\n♫ Songs ({}):\n", results.songs.len());
         println!(
-            "  {:<10} {:<35} {:<20} {:<25} {:<8} {:<15} {}",
-            "ID", "Name", "Artist", "Album", "Duration", "Composer", "Genre"
+            "  {:<10} {:<35} {:<20} {:<25} {:<8} {:<15} Genre",
+            "ID", "Name", "Artist", "Album", "Duration", "Composer"
         );
         println!("  {}", "-".repeat(140));
         for s in &results.songs {
@@ -225,8 +223,8 @@ pub async fn run_search(
     if !results.albums.is_empty() {
         println!("\n📁 Albums ({}):\n", results.albums.len());
         println!(
-            "  {:<10} {:<35} {:<20} {:<8} {:<12} {}",
-            "ID", "Name", "Artist", "Tracks", "Released", "Genre"
+            "  {:<10} {:<35} {:<20} {:<8} {:<12} Genre",
+            "ID", "Name", "Artist", "Tracks", "Released"
         );
         println!("  {}", "-".repeat(110));
         for a in &results.albums {
@@ -248,7 +246,7 @@ pub async fn run_search(
     // ── Artists ──
     if !results.artists.is_empty() {
         println!("\n🎤 Artists ({}):\n", results.artists.len());
-        println!("  {:<10} {:<40} {}", "ID", "Name", "Genre");
+        println!("  {:<10} {:<40} Genre", "ID", "Name");
         println!("  {}", "-".repeat(70));
         for a in &results.artists {
             println!(
@@ -267,7 +265,7 @@ pub async fn run_search(
     // ── Playlists ──
     if !results.playlists.is_empty() {
         println!("\n🎧 Playlists ({}):\n", results.playlists.len());
-        println!("  {:<10} {:<40} {}", "ID", "Name", "Curator");
+        println!("  {:<10} {:<40} Curator", "ID", "Name");
         println!("  {}", "-".repeat(60));
         for p in &results.playlists {
             println!(
