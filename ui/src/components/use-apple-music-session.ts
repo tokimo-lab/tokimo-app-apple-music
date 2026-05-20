@@ -37,6 +37,8 @@ interface AppleMusicSessionInput {
   initialData: PlaybackStateData | null;
   /** True once initialData has been populated. */
   initialDataReady: boolean;
+  /** When false, media session registration is skipped (window-level mount). */
+  enabled?: boolean;
   play: () => Promise<void>;
   pause: () => void;
   seekToTime: (time: number) => Promise<void>;
@@ -64,6 +66,7 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
     hasEverPlayed,
     initialData,
     initialDataReady,
+    enabled = true,
     play,
     pause,
     seekToTime,
@@ -245,13 +248,14 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
     buildState,
   ]);
 
-  useMediaSessionRegister(appleMediaSource);
+  useMediaSessionRegister(enabled ? appleMediaSource : null);
 
   // Mirror playback state to the host MediaSessionContext so ControlCenter
   // / NowPlayingWidget pick up Apple Music as the active source. Local
   // music does the same thing from MusicPlayerContext.
   useEffect(() => {
     const session = mediaSessionRef.current;
+    if (!enabled) return;
     if (!session) return;
     if (!appleMediaSource) return;
     if (isPlaying) {
@@ -259,7 +263,7 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
     } else {
       session.notifyPause("music", "apple-music");
     }
-  }, [isPlaying, appleMediaSource]);
+  }, [enabled, isPlaying, appleMediaSource]);
 
   const { didRestoreRef } = usePlaybackStatePersistence({
     ready: isConfigured,

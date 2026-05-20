@@ -76,6 +76,7 @@ export default function AppleMusicContent() {
       developerToken={data.developerToken}
       initialPage={initialPage}
       onPageChange={handlePageChange}
+      registerSession={false}
     >
       <AppleMusicLayout />
     </AppleMusicProvider>

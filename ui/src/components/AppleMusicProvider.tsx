@@ -153,6 +153,8 @@ interface AppleMusicProviderProps {
   initialPage?: AppleMusicPage;
   /** Callback to persist page changes to window metadata */
   onPageChange?: (page: AppleMusicPage) => void;
+  /** Whether to register a MediaSession (default true). Set false in window tree when headless is active. */
+  registerSession?: boolean;
   children: React.ReactNode;
 }
 
@@ -160,6 +162,7 @@ export function AppleMusicProvider({
   developerToken,
   initialPage,
   onPageChange,
+  registerSession = true,
   children,
 }: AppleMusicProviderProps) {
   const { isLoaded, error: loadError } = useMusicKitLoader();
@@ -1371,6 +1374,7 @@ export function AppleMusicProvider({
     hasEverPlayed,
     initialData: mediaSession?.rawPlaybackData ?? null,
     initialDataReady: mediaSession?.rawPlaybackDataReady ?? true,
+    enabled: registerSession,
     play,
     pause,
     seekToTime,
