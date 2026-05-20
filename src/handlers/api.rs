@@ -497,8 +497,6 @@ pub async fn get_album_detail(
                 .map_err(|e| format!("HTTP client error: {e}"))?;
 
             let url = format!("{AMP_API_URL}/v1/catalog/{storefront}/albums/{album_id}");
-            debug!("[AppleMusic] Album detail request: url={url}, storefront={storefront}");
-
             let mut req = client
                 .get(&url)
                 .header("Authorization", format!("Bearer {dev_token}"))
@@ -513,25 +511,16 @@ pub async fn get_album_detail(
 
             let resp = req.send().await.map_err(|e| format!("Apple Music API error: {e}"))?;
 
-            debug!("[AppleMusic] Album detail response: status={}", resp.status());
-
             if !resp.status().is_success() {
                 let status = resp.status();
                 let body = resp.text().await.unwrap_or_default();
                 return Err(format!("Apple Music API returned {status}: {body}"));
             }
 
-            let body_text = resp
-                .text()
+            let json: serde_json::Value = resp
+                .json()
                 .await
-                .map_err(|e| format!("Failed to read album response: {e}"))?;
-            debug!(
-                "[AppleMusic] Album detail raw response (first 2000 chars): {}",
-                &body_text[..body_text.len().min(2000)]
-            );
-
-            let json: serde_json::Value =
-                serde_json::from_str(&body_text).map_err(|e| format!("Failed to parse album response: {e}"))?;
+                .map_err(|e| format!("Failed to parse album response: {e}"))?;
 
             let album = json
                 .pointer("/data/0")
@@ -540,18 +529,6 @@ pub async fn get_album_detail(
             let attrs = album
                 .get("attributes")
                 .ok_or_else(|| "No attributes in album response".to_string())?;
-
-            debug!(
-                "[AppleMusic] Album detail raw attrs: url={:?}, name={:?}, artistName={:?}, storefront_in_url={:?}",
-                attrs["url"],
-                attrs["name"],
-                attrs["artistName"],
-                attrs["url"].as_str().and_then(|u| u.split('/').nth(4)),
-            );
-            debug!(
-                "[AppleMusic] Album detail full JSON keys: {}",
-                serde_json::to_string(&attrs).unwrap_or_default()
-            );
 
             let mut tracks = Vec::new();
             if let Some(track_data) = json
