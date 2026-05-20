@@ -247,6 +247,20 @@ export function useAppleMusicSession(input: AppleMusicSessionInput): void {
 
   useMediaSessionRegister(appleMediaSource);
 
+  // Mirror playback state to the host MediaSessionContext so ControlCenter
+  // / NowPlayingWidget pick up Apple Music as the active source. Local
+  // music does the same thing from MusicPlayerContext.
+  useEffect(() => {
+    const session = mediaSessionRef.current;
+    if (!session) return;
+    if (!appleMediaSource) return;
+    if (isPlaying) {
+      session.requestPlay("music", "apple-music");
+    } else {
+      session.notifyPause("music", "apple-music");
+    }
+  }, [isPlaying, appleMediaSource]);
+
   const { didRestoreRef } = usePlaybackStatePersistence({
     ready: isConfigured,
     initialData,
