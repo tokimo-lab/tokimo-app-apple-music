@@ -26,20 +26,4 @@ full_bleed   = true
 
 [cli]
 name = "tokimo-app-apple-music"
-description = """\
-Query Apple Music catalog (songs, albums) for the current user. Subcommands:
-  status                          — verify auth + show user_id
-  search <query> [opts]           — search the Apple Music catalog
-      --types <csv>   default \"songs,albums\" (also: artists, playlists)
-      --limit <n>     per-type cap, default 25
-      --page  <n>     1-based page, default 1
-  album <album_id> [--raw]        — fetch album metadata + full track listing
-                                    (use --raw to dump the underlying JSON)
-  download <track_id> [opts]      — download + decrypt a single track to disk
-      --output <path> file or directory, default \".\"
-      --quality <q>   lossless | high | standard, default \"high\"
-IDs are Apple Music catalog IDs (numeric strings, e.g. 1887230874). The user
-must first sign in to the Apple Music app once so that music-user-token +
-storefront are saved to user_preferences. The agent's --tokimo-token is
-auto-injected by the sandbox bridge; do not pass it manually.
-"""
+description = "Query Apple Music songs and albums, and download them to local cache."
