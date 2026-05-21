@@ -1,6 +1,5 @@
 import { Spin } from "@tokimo/ui";
 import { useCallback, useEffect, useRef } from "react";
-import * as centralEngine from "../../shell/engine-ref";
 import { useAppleMusic } from "../AppleMusicProvider";
 import { useAppleMusicLyrics } from "../use-apple-music-lyrics";
 
@@ -14,14 +13,9 @@ export function LyricsView() {
   const songId = nowPlayingItem?.id;
   const catalogId = nowPlayingItem?.attributes?.playParams?.catalogId ?? songId;
 
-  // Read directly from central engine for smoother lyrics sync (60fps RAF),
-  // falling back to React state for non-engine playback.
-  const getTime = useCallback(() => {
-    if (centralEngine.getActiveProvider() === "apple-music") {
-      return centralEngine.getCurrentTime();
-    }
-    return currentPlaybackTime;
-  }, [currentPlaybackTime]);
+  // Pull time from MediaCenter-backed snapshot. Updates ~4Hz, smooth enough
+  // for line-granularity lyric highlighting.
+  const getTime = useCallback(() => currentPlaybackTime, [currentPlaybackTime]);
 
   const {
     lines: lyrics,

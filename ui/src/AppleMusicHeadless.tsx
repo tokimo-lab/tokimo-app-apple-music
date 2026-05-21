@@ -1,6 +1,8 @@
 /**
- * AppleMusicHeadless — background mount that keeps MusicKit initialized
- * and the MediaSession registered even when no Apple Music window is open.
+ * AppleMusicHeadless — background mount that keeps the MusicKit instance
+ * configured (so login + catalog API work the moment any window opens) and
+ * registers the Apple Music provider with the host MediaCenter so playback
+ * continues after the window is closed.
  *
  * Rendered by the host BackgroundAppHost into a hidden container.
  */
@@ -31,7 +33,7 @@ export default function AppleMusicHeadless() {
   if (!data?.developerToken) return null;
 
   return (
-    <AppleMusicProvider developerToken={data.developerToken} registerSession>
+    <AppleMusicProvider developerToken={data.developerToken}>
       {/* headless: no UI */}
     </AppleMusicProvider>
   );

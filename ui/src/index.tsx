@@ -12,7 +12,6 @@ import { createRoot, type Root } from "react-dom/client";
 import { AppCtxProvider } from "./AppContext";
 import AppleMusicContent from "./AppleMusicContent";
 import AppleMusicHeadless from "./AppleMusicHeadless";
-import { initEngine } from "./shell/engine-ref";
 import "./index.css";
 
 export default defineApp({
@@ -28,8 +27,6 @@ export default defineApp({
     category: "app",
   },
   mount(container, ctx): Dispose {
-    initEngine(ctx.shell.media);
-
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
     });
@@ -52,7 +49,6 @@ export default defineApp({
     return () => root.unmount();
   },
   mountBackground(container, ctx): Dispose {
-    initEngine(ctx.shell.media);
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
     });
