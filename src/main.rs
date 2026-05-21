@@ -64,6 +64,25 @@ enum Command {
         #[arg(long)]
         raw: bool,
     },
+    /// 查看歌曲详情（专辑、歌词状态、ISRC 等）。
+    Song {
+        /// Apple Music song ID
+        song_id: String,
+        /// 输出原始 JSON 响应
+        #[arg(long)]
+        raw: bool,
+        /// 获取并显示完整歌词
+        #[arg(long)]
+        lyrics: bool,
+    },
+    /// 查看歌手详情（简介、专辑列表）。
+    Artist {
+        /// Apple Music artist ID
+        artist_id: String,
+        /// 输出原始 JSON 响应
+        #[arg(long)]
+        raw: bool,
+    },
     /// 下载并解密一首歌曲到本地文件。
     Download {
         /// Apple Music track ID
@@ -106,6 +125,8 @@ async fn main() -> anyhow::Result<()> {
             let result = match cmd {
                 Command::Status => cli::run_status(auth).await,
                 Command::Album { album_id, raw } => cli::run_album(auth, album_id, raw).await,
+                Command::Song { song_id, raw, lyrics } => cli::run_song(auth, song_id, raw, lyrics).await,
+                Command::Artist { artist_id, raw } => cli::run_artist(auth, artist_id, raw).await,
                 Command::Search {
                     query,
                     types,

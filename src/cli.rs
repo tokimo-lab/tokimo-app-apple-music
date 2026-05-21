@@ -121,7 +121,11 @@ pub async fn run_album(auth: TokimoAuthArgs, album_id: String, raw: bool) -> any
     // Header
     println!();
     println!("  Album:     {}", detail.name);
-    println!("  Artist:    {}", detail.artist);
+    print!("  Artist:    {}", detail.artist);
+    if let Some(ref aid) = detail.artist_id {
+        print!("  (ID: {aid})");
+    }
+    println!();
     if let Some(ref date) = detail.release_date {
         println!("  Released:  {date}");
     }
@@ -170,6 +174,161 @@ pub async fn run_album(auth: TokimoAuthArgs, album_id: String, raw: bool) -> any
                 truncate(&t.artist, 20),
                 format_duration(t.duration_ms),
                 t.composer.as_deref().unwrap_or("-"),
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// `song` — show song detail.
+pub async fn run_song(auth: TokimoAuthArgs, song_id: String, raw: bool, lyrics: bool) -> anyhow::Result<()> {
+    let (db, user_id) = init(&auth).await?;
+
+    let music_user_token = read_music_user_token(&db, &user_id).await.ok();
+    let storefront = read_storefront(&db, &user_id).await?;
+
+    // --lyrics mode: fetch and display lyrics
+    if lyrics {
+        let user_token = music_user_token
+            .ok_or_else(|| anyhow::anyhow!("music-user-token is required for lyrics. Save it first via the app UI."))?;
+
+        if raw {
+            let json = api::get_song_lyrics_json(&user_token, &storefront, &song_id)
+                .await
+                .map_err(|e| anyhow::anyhow!("song lyrics: {e}"))?;
+            println!("{}", serde_json::to_string_pretty(&json)?);
+            return Ok(());
+        }
+
+        let song_lyrics = api::get_song_lyrics(&user_token, &storefront, &song_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("song lyrics: {e}"))?;
+
+        if song_lyrics.lines.is_empty() {
+            println!("No lyrics available for this song.");
+        } else {
+            println!();
+            for (ts, text) in &song_lyrics.lines {
+                if let Some(t) = ts {
+                    print!("  [{t}] ");
+                } else {
+                    print!("         ");
+                }
+                println!("{text}");
+            }
+            println!();
+        }
+        return Ok(());
+    }
+
+    if raw {
+        let json = api::get_song_detail_json(music_user_token.as_deref(), &storefront, &song_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("song detail: {e}"))?;
+        println!("{}", serde_json::to_string_pretty(&json)?);
+        return Ok(());
+    }
+
+    let detail = api::get_song_detail(music_user_token.as_deref(), &storefront, &song_id)
+        .await
+        .map_err(|e| anyhow::anyhow!("song detail: {e}"))?;
+
+    println!();
+    println!("  Song:      {}", detail.name);
+    print!("  Artist:    {}", detail.artist);
+    if let Some(ref aid) = detail.artist_id {
+        print!("  (ID: {aid})");
+    }
+    println!();
+    print!("  Album:     {}", detail.album);
+    if let Some(ref alid) = detail.album_id {
+        print!("  (ID: {alid})");
+    }
+    println!();
+    println!("  Duration:  {}", format_duration(detail.duration_ms));
+    if let Some(ref date) = detail.release_date {
+        println!("  Released:  {date}");
+    }
+    if !detail.genre_names.is_empty() {
+        println!("  Genre:     {}", detail.genre_names.join(", "));
+    }
+    if let Some(ref composer) = detail.composer {
+        println!("  Composer:  {composer}");
+    }
+    if let Some(track) = detail.track_number {
+        print!("  Track:     {track}");
+        if let Some(disc) = detail.disc_number {
+            print!(" (Disc {disc})");
+        }
+        println!();
+    }
+    if let Some(ref rating) = detail.content_rating {
+        println!("  Rating:    {rating}");
+    }
+    println!("  Lyrics:    {}", if detail.has_lyrics { "Yes" } else { "No" });
+    if detail.has_time_synced_lyrics {
+        println!("  Synced:    Yes");
+    }
+    if let Some(ref isrc) = detail.isrc {
+        println!("  ISRC:      {isrc}");
+    }
+    if let Some(ref label) = detail.copyright {
+        println!("  Copyright: {label}");
+    }
+    if let Some(ref notes) = detail.editorial_notes_short {
+        println!("  Summary:   {notes}");
+    }
+    println!("  URL:       {}", detail.url.as_deref().unwrap_or("-"));
+    println!("  ID:        {}", detail.id);
+
+    Ok(())
+}
+
+/// `artist` — show artist detail with album listing.
+pub async fn run_artist(auth: TokimoAuthArgs, artist_id: String, raw: bool) -> anyhow::Result<()> {
+    let (db, user_id) = init(&auth).await?;
+
+    let music_user_token = read_music_user_token(&db, &user_id).await.ok();
+    let storefront = read_storefront(&db, &user_id).await?;
+
+    if raw {
+        let json = api::get_artist_detail_json(music_user_token.as_deref(), &storefront, &artist_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("artist detail: {e}"))?;
+        println!("{}", serde_json::to_string_pretty(&json)?);
+        return Ok(());
+    }
+
+    let detail = api::get_artist_detail(music_user_token.as_deref(), &storefront, &artist_id)
+        .await
+        .map_err(|e| anyhow::anyhow!("artist detail: {e}"))?;
+
+    println!();
+    println!("  Artist:    {}", detail.name);
+    if !detail.genre_names.is_empty() {
+        println!("  Genre:     {}", detail.genre_names.join(", "));
+    }
+    if let Some(ref notes) = detail.editorial_notes_short {
+        println!("  Summary:   {notes}");
+    }
+    if let Some(ref notes) = detail.editorial_notes_standard {
+        println!("  Bio:       {notes}");
+    }
+    println!("  URL:       {}", detail.url.as_deref().unwrap_or("-"));
+    println!("  ID:        {}", detail.id);
+
+    if !detail.albums.is_empty() {
+        println!();
+        println!("  {:<12} {:<6} {:<12} Name", "ID", "Tracks", "Released");
+        println!("  {}", "-".repeat(80));
+        for a in &detail.albums {
+            println!(
+                "  {:<12} {:<6} {:<12} {}",
+                truncate(&a.id, 12),
+                a.track_count.map_or("-".to_string(), |c| c.to_string()),
+                a.release_date.as_deref().unwrap_or("-"),
+                a.name,
             );
         }
     }
