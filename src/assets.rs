@@ -1,4 +1,4 @@
-//! 静态资源 — embed 优先，dev 模式可用 `TOKIMO_APP_ASSETS_DIR` 覆盖。
+//! 静态资源 — embed 优先，dev 模式通过 cwd 相对路径覆盖（host 设 cwd = install_dir）。
 
 use axum::{
     body::Bytes,
@@ -16,12 +16,24 @@ struct EmbeddedUi;
 pub async fn serve(Path(path): Path<String>) -> Response {
     let normalised = normalise(&path);
 
-    let bytes: Bytes = if let Ok(dir) = std::env::var("TOKIMO_APP_ASSETS_DIR") {
-        let full = std::path::Path::new(&dir).join(&normalised);
-        match tokio::fs::read(&full).await {
-            Ok(b) => Bytes::from(b),
-            Err(e) => {
-                return (StatusCode::NOT_FOUND, format!("asset {normalised}: {e}")).into_response();
+    let ui_dist_opt = tokimo_bus_cli::manifest::parse_app_ui_dist(crate::MANIFEST)
+        .ok()
+        .flatten();
+    let bytes: Bytes = if let Some(ui_dist) = ui_dist_opt.as_deref() {
+        let candidate = std::path::Path::new(ui_dist).join(&normalised);
+        if candidate.exists() {
+            match tokio::fs::read(&candidate).await {
+                Ok(b) => Bytes::from(b),
+                Err(e) => {
+                    return (StatusCode::NOT_FOUND, format!("asset {normalised}: {e}")).into_response();
+                }
+            }
+        } else {
+            match EmbeddedUi::get(&normalised) {
+                Some(f) => Bytes::from(f.data.into_owned()),
+                None => {
+                    return (StatusCode::NOT_FOUND, format!("embedded asset not found: {normalised}")).into_response();
+                }
             }
         }
     } else {

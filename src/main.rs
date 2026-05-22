@@ -15,6 +15,8 @@ mod error;
 mod handlers;
 mod openapi_client;
 
+const MANIFEST: &str = include_str!("../tokimo-app.toml");
+
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock};
 
