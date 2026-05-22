@@ -11,7 +11,6 @@
 mod app_server;
 mod assets;
 mod cli;
-mod db;
 mod error;
 mod handlers;
 mod openapi_client;
