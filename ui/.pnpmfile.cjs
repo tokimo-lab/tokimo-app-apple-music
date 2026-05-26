@@ -24,13 +24,20 @@ function findMonorepoRoot(start) {
 
 const root = findMonorepoRoot(__dirname);
 
-// file: overrides used when inside the main monorepo
+// file: overrides used when inside the main monorepo.
+// Use `link:` with paths RELATIVE to this package so pnpm-lock.yaml is
+// portable across developer machines — absolute paths would leak
+// `/home/<user>/...` into the lockfile and ping-pong on each install.
+function rel(target) {
+  return path.relative(__dirname, target).split(path.sep).join("/");
+}
+
 const fileOverrides = root
   ? {
-      "@tokimo/ui": `file:${root}/packages/ui`,
-      "@tokimo/sdk": `file:${root}/packages/tokimo-package-sdk`,
-      "@tokimo/app-builder": `file:${root}/packages/tokimo-app-builder`,
-      "@tokimo/viewers": `file:${root}/packages/tokimo-viewers`,
+      "@tokimo/ui": `link:${rel(path.join(root, "packages/ui"))}`,
+      "@tokimo/sdk": `link:${rel(path.join(root, "packages/tokimo-package-sdk"))}`,
+      "@tokimo/app-builder": `link:${rel(path.join(root, "packages/tokimo-app-builder"))}`,
+      "@tokimo/viewers": `link:${rel(path.join(root, "packages/tokimo-viewers"))}`,
     }
   : null;
 
