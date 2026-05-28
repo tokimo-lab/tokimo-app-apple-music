@@ -19,7 +19,7 @@
     "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#2232b1ba4fb9b7d61645c6588c579106bf6821dd",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "tailwindcss": "^4.2.4",
+    "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10"
   }
