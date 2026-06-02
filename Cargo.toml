@@ -32,8 +32,3 @@ sea-orm            = { version = "2.0.0-rc.38", default-features = false, featur
 rust-embed         = { version = "8", features = ["debug-embed"] }
 mime_guess         = "2"
 axum               = { version = "0.8", features = ["json"] }
-
-[profile.release]
-lto       = "thin"
-opt-level = 3
-strip     = "symbols"
