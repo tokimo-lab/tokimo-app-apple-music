@@ -10,7 +10,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.100.5",
     "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#e06d282611cf9cbf6f2dcf8e53fc3e8b31cacd1b",
-    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#ce11e88ab475a7933fe284966dac1f9fd09cca72",
+    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#f0e2dd4",
     "lucide-react": "^1.11.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
