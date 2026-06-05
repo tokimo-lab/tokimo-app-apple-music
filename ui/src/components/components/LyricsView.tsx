@@ -57,7 +57,7 @@ export function LyricsView() {
 
   if (!songId) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-[var(--text-tertiary)]">
+      <div className="flex h-full items-center justify-center text-sm text-[var(--color-fg-muted)]">
         Play a song to see lyrics
       </div>
     );
@@ -73,7 +73,7 @@ export function LyricsView() {
 
   if (noLyrics || lyrics.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-[var(--text-tertiary)]">
+      <div className="flex h-full items-center justify-center text-sm text-[var(--color-fg-muted)]">
         Lyrics not available
       </div>
     );
@@ -97,10 +97,10 @@ export function LyricsView() {
               onClick={() => handleLineClick(line)}
               className={`cursor-pointer rounded-md px-3 py-2 text-left text-lg font-semibold leading-relaxed transition-all duration-300 hover:bg-white/5 ${
                 isActive
-                  ? "text-[var(--text-primary)] scale-[1.02]"
+                  ? "text-[var(--color-fg-primary)] scale-[1.02]"
                   : isPast
-                    ? "text-[var(--text-tertiary)] opacity-60"
-                    : "text-[var(--text-secondary)] opacity-80"
+                    ? "text-[var(--color-fg-muted)] opacity-60"
+                    : "text-[var(--color-fg-secondary)] opacity-80"
               }`}
             >
               {line.text}

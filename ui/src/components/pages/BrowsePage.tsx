@@ -97,7 +97,7 @@ export default function BrowsePage() {
   if (error) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-[var(--text-secondary)]">{error}</p>
+        <p className="text-sm text-[var(--color-fg-secondary)]">{error}</p>
         <Button
           variant="primary"
           shape="round"
@@ -117,7 +117,7 @@ export default function BrowsePage() {
       {/* Top Songs */}
       {charts.songs.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Top Songs
           </h2>
           <TrackList
@@ -132,7 +132,7 @@ export default function BrowsePage() {
       {/* Top Albums */}
       {charts.albums.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Top Albums
           </h2>
           <div className="flex flex-wrap gap-4">
@@ -156,7 +156,7 @@ export default function BrowsePage() {
       {/* Top Playlists */}
       {charts.playlists.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Top Playlists
           </h2>
           <div className="flex flex-wrap gap-4">

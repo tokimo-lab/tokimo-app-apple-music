@@ -134,7 +134,7 @@ export default function AlbumPage() {
   if (error || !album) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--color-fg-secondary)]">
           {error ?? "Album not found"}
         </p>
         {canGoBack && (
@@ -174,7 +174,7 @@ export default function AlbumPage() {
         <ArtworkImage artwork={album.artwork} size={250} alt={album.name} />
 
         <div className="flex min-w-0 flex-col justify-end gap-2">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-[var(--color-fg-primary)]">
             {album.name}
           </h1>
 
@@ -192,7 +192,7 @@ export default function AlbumPage() {
             <p className="text-xl text-[#FA2D48]">{album.artistName}</p>
           )}
 
-          <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--color-fg-secondary)]">
             {album.genreNames[0] && <span>{album.genreNames[0]}</span>}
             {year && (
               <>
@@ -213,7 +213,7 @@ export default function AlbumPage() {
           </div>
 
           {album.editorialNotes && (
-            <p className="mt-1 line-clamp-2 text-sm text-[var(--text-tertiary)]">
+            <p className="mt-1 line-clamp-2 text-sm text-[var(--color-fg-muted)]">
               {album.editorialNotes}
             </p>
           )}

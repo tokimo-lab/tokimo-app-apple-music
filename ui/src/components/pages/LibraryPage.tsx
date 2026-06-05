@@ -163,12 +163,12 @@ export default function LibraryPage() {
   if (!isAuthorized || tokenExpired) {
     const isReconnect = isAuthorized && tokenExpired;
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 text-[var(--text-secondary)]">
+      <div className="flex h-full flex-col items-center justify-center gap-4 text-[var(--color-fg-secondary)]">
         <Library size={48} strokeWidth={1} />
         <p className="text-base font-medium">
           {isReconnect ? "Session expired" : "Sign in to access your library"}
         </p>
-        <p className="text-sm text-[var(--text-tertiary)]">
+        <p className="text-sm text-[var(--color-fg-muted)]">
           {isReconnect
             ? "Your Apple Music session has expired. Reconnect to access your library."
             : "Connect your Apple Music account to see your songs, albums, and playlists"}
@@ -193,7 +193,7 @@ export default function LibraryPage() {
         activeKey={activeTab}
         onChange={(key) => switchTab(key as LibraryTab)}
         items={TABS.map((tab) => ({ key: tab.key, label: tab.label }))}
-        className="[--accent:#FA2D48] border-b border-border-base px-6 py-3"
+        className="[--color-accent:#FA2D48] border-b border-border-base px-6 py-3"
       />
 
       {/* Content */}
@@ -205,13 +205,13 @@ export default function LibraryPage() {
         )}
 
         {error && (
-          <div className="flex h-full items-center justify-center text-sm text-[var(--text-secondary)]">
+          <div className="flex h-full items-center justify-center text-sm text-[var(--color-fg-secondary)]">
             {error}
           </div>
         )}
 
         {!loading && !error && items.length === 0 && (
-          <div className="flex h-full items-center justify-center text-sm text-[var(--text-tertiary)]">
+          <div className="flex h-full items-center justify-center text-sm text-[var(--color-fg-muted)]">
             No {activeTab} in your library
           </div>
         )}

@@ -130,7 +130,7 @@ export default function PlaylistPage() {
   if (error || !playlist) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--color-fg-secondary)]">
           {error ?? "Playlist not found"}
         </p>
         {canGoBack && (
@@ -172,17 +172,17 @@ export default function PlaylistPage() {
         />
 
         <div className="flex min-w-0 flex-col justify-end gap-2">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-[var(--color-fg-primary)]">
             {playlist.name}
           </h1>
 
           {playlist.curatorName && (
-            <p className="text-base text-[var(--text-secondary)]">
+            <p className="text-base text-[var(--color-fg-secondary)]">
               {playlist.curatorName}
             </p>
           )}
 
-          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <div className="flex items-center gap-2 text-sm text-[var(--color-fg-secondary)]">
             <span>
               {playlist.trackCount}{" "}
               {playlist.trackCount === 1 ? "song" : "songs"}
@@ -196,7 +196,7 @@ export default function PlaylistPage() {
           </div>
 
           {playlist.description && (
-            <p className="mt-1 line-clamp-3 text-sm text-[var(--text-tertiary)]">
+            <p className="mt-1 line-clamp-3 text-sm text-[var(--color-fg-muted)]">
               {playlist.description}
             </p>
           )}

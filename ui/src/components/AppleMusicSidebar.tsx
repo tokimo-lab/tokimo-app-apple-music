@@ -138,9 +138,9 @@ export function AppleMusicSidebar({
       topInset={isMacStyle ? 36 : undefined}
       style={
         {
-          "--accent": APPLE_MUSIC_RED,
-          "--accent-subtle": "rgba(250, 45, 72, 0.12)",
-          "--accent-subtle-hover": "rgba(250, 45, 72, 0.16)",
+          "--color-accent": APPLE_MUSIC_RED,
+          "--color-accent-subtle": "rgba(250, 45, 72, 0.12)",
+          "--color-accent-subtle-hover": "rgba(250, 45, 72, 0.16)",
         } as React.CSSProperties
       }
       sections={sections}

@@ -208,7 +208,7 @@ export default function SearchPage() {
                 <button
                   type="button"
                   onClick={clearQuery}
-                  className="cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+                  className="cursor-pointer text-[var(--color-fg-muted)] hover:text-[var(--color-fg-primary)]"
                 >
                   <X size={14} />
                 </button>
@@ -222,7 +222,7 @@ export default function SearchPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {!searched && !loading && (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--text-tertiary)]">
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--color-fg-muted)]">
             <Search size={48} strokeWidth={1} />
             <p className="text-sm">
               Search for songs, albums, artists, and playlists
@@ -237,7 +237,7 @@ export default function SearchPage() {
         )}
 
         {searched && !loading && !hasResults && (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--text-tertiary)]">
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--color-fg-muted)]">
             <p className="text-sm">No results found for "{query}"</p>
           </div>
         )}
@@ -249,7 +249,7 @@ export default function SearchPage() {
               activeKey={activeTab}
               onChange={(key) => setActiveTab(key as TabKey)}
               items={visibleTabItems}
-              className="[--accent:#FA2D48] mb-6"
+              className="[--color-accent:#FA2D48] mb-6"
               destroyInactiveTabPane
             />
           </div>

@@ -22,11 +22,11 @@ export function ArtworkImage({
   if (!url) {
     return (
       <div
-        className={`flex items-center justify-center bg-gradient-to-br from-[var(--fill-tertiary)] to-[var(--bg-glass)] ${roundedClass} ${className}`}
+        className={`flex items-center justify-center bg-gradient-to-br from-[var(--color-fill-tertiary)] to-[var(--color-surface-overlay)] ${roundedClass} ${className}`}
         style={{ width: size, height: size }}
       >
         <Music
-          className="text-[var(--text-tertiary)]"
+          className="text-[var(--color-fg-muted)]"
           size={Math.round(size * 0.4)}
         />
       </div>

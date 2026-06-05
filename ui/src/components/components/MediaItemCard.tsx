@@ -87,9 +87,9 @@ export function MediaItemCard({
     }
     return (
       <div
-        className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--fill-tertiary)] to-[var(--bg-glass)] ${roundedClass}`}
+        className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-fill-tertiary)] to-[var(--color-surface-overlay)] ${roundedClass}`}
       >
-        <FallbackIcon className="text-[var(--text-tertiary)]" size={40} />
+        <FallbackIcon className="text-[var(--color-fg-muted)]" size={40} />
       </div>
     );
   };
@@ -101,7 +101,7 @@ export function MediaItemCard({
     <div
       role="button"
       tabIndex={0}
-      className={`group flex w-[160px] shrink-0 cursor-pointer flex-col gap-2 rounded-xl p-2 transition-colors hover:bg-[var(--fill-tertiary)] ${
+      className={`group flex w-[160px] shrink-0 cursor-pointer flex-col gap-2 rounded-xl p-2 transition-colors hover:bg-[var(--color-fill-tertiary)] ${
         alignCenter ? "items-center text-center" : "items-start text-left"
       }`}
       onClick={onClick}
@@ -137,14 +137,14 @@ export function MediaItemCard({
       </div>
 
       <div className="w-full min-w-0 px-0.5">
-        <p className="truncate text-[13px] font-medium text-[var(--text-primary)]">
+        <p className="truncate text-[13px] font-medium text-[var(--color-fg-primary)]">
           {name}
         </p>
         {subtitle &&
           (onSubtitleClick ? (
             <button
               type="button"
-              className={`block w-full cursor-pointer truncate text-xs text-[var(--text-secondary)] hover:underline ${
+              className={`block w-full cursor-pointer truncate text-xs text-[var(--color-fg-secondary)] hover:underline ${
                 alignCenter ? "text-center" : "text-left"
               }`}
               onClick={(e) => {
@@ -155,7 +155,7 @@ export function MediaItemCard({
               {subtitle}
             </button>
           ) : (
-            <p className="truncate text-xs text-[var(--text-secondary)]">
+            <p className="truncate text-xs text-[var(--color-fg-secondary)]">
               {subtitle}
             </p>
           ))}

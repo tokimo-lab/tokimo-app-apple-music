@@ -52,10 +52,10 @@ export function AppleMusicLogin() {
 
         {/* Title */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl font-bold text-[var(--color-fg-primary)]">
             Apple Music
           </h1>
-          <p className="text-sm leading-relaxed text-[var(--text-tertiary)]">
+          <p className="text-sm leading-relaxed text-[var(--color-fg-muted)]">
             Sign in with your Apple ID to listen to over 100 million songs,
             access your library, and get personalized recommendations.
           </p>
@@ -82,7 +82,7 @@ export function AppleMusicLogin() {
         </Button>
 
         {/* Note */}
-        <p className="text-xs text-[var(--text-tertiary)]">
+        <p className="text-xs text-[var(--color-fg-muted)]">
           Requires an Apple Music subscription.
         </p>
       </div>

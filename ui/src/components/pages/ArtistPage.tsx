@@ -162,7 +162,7 @@ export default function ArtistPage() {
   if (error || !artist) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--color-fg-secondary)]">
           {error ?? "Artist not found"}
         </p>
         {canGoBack && (
@@ -230,11 +230,11 @@ export default function ArtistPage() {
                 Back
               </Button>
             )}
-            <h1 className="text-4xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-4xl font-bold text-[var(--color-fg-primary)]">
               {artist.name}
             </h1>
             {artist.genreNames.length > 0 && (
-              <p className="mt-1 text-base text-[var(--text-secondary)]">
+              <p className="mt-1 text-base text-[var(--color-fg-secondary)]">
                 {artist.genreNames.join(", ")}
               </p>
             )}
@@ -245,7 +245,7 @@ export default function ArtistPage() {
       {/* Top Songs */}
       {artist.topSongs.length > 0 && (
         <section className="px-6 pt-6 pb-8">
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Top Songs
           </h2>
           <TrackList
@@ -271,7 +271,7 @@ export default function ArtistPage() {
       {/* Albums */}
       {artist.albums.length > 0 && (
         <section className="px-6 pb-8">
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Albums
           </h2>
           <div className="flex flex-wrap gap-4">
@@ -289,7 +289,7 @@ export default function ArtistPage() {
       )}
 
       {artist.topSongs.length === 0 && artist.albums.length === 0 && (
-        <div className="flex h-40 items-center justify-center text-sm text-[var(--text-tertiary)]">
+        <div className="flex h-40 items-center justify-center text-sm text-[var(--color-fg-muted)]">
           No content available for this artist
         </div>
       )}

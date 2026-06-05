@@ -75,13 +75,13 @@ export function AppleMusicPlayer() {
   return (
     <div
       ref={playerRef}
-      className="flex h-20 flex-shrink-0 items-center border-t border-border-base bg-[var(--bg-glass)] px-4"
+      className="flex h-20 flex-shrink-0 items-center border-t border-border-base bg-[var(--color-surface-overlay)] px-4"
     >
       {" "}
       {/* Left: Now playing info — click to expand */}
       <button
         type="button"
-        className={`flex ${isMini ? "flex-shrink-0" : isNarrow ? "w-36 flex-shrink-0" : "w-56 flex-shrink-0"} cursor-pointer items-center gap-3 rounded-lg p-1 transition-colors hover:bg-[var(--fill-tertiary)]`}
+        className={`flex ${isMini ? "flex-shrink-0" : isNarrow ? "w-36 flex-shrink-0" : "w-56 flex-shrink-0"} cursor-pointer items-center gap-3 rounded-lg p-1 transition-colors hover:bg-[var(--color-fill-tertiary)]`}
         onClick={() => navigateTo({ type: "now-playing" })}
       >
         {artworkUrl ? (
@@ -91,16 +91,16 @@ export function AppleMusicPlayer() {
             className="h-12 w-12 flex-shrink-0 rounded-md object-cover"
           />
         ) : (
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--fill-tertiary)]">
-            <Play className="h-5 w-5 text-[var(--text-tertiary)]" />
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[var(--color-fill-tertiary)]">
+            <Play className="h-5 w-5 text-[var(--color-fg-muted)]" />
           </div>
         )}
         <div className={`min-w-0 text-left ${isMini ? "hidden" : ""}`}>
-          <div className="truncate text-sm font-medium text-[var(--text-primary)]">
+          <div className="truncate text-sm font-medium text-[var(--color-fg-primary)]">
             {title}
           </div>
           {artist && (
-            <div className="truncate text-xs text-[var(--text-tertiary)]">
+            <div className="truncate text-xs text-[var(--color-fg-muted)]">
               {isBuffering ? (
                 <span className="animate-pulse">Loading…</span>
               ) : (
@@ -118,11 +118,11 @@ export function AppleMusicPlayer() {
               <button
                 type="button"
                 onClick={toggleShuffle}
-                className="cursor-pointer rounded p-1 transition-colors hover:bg-[var(--fill-tertiary)]"
+                className="cursor-pointer rounded p-1 transition-colors hover:bg-[var(--color-fill-tertiary)]"
                 style={shuffleMode ? { color: APPLE_MUSIC_RED } : undefined}
               >
                 <Shuffle
-                  className="h-4 w-4 text-[var(--text-secondary)]"
+                  className="h-4 w-4 text-[var(--color-fg-secondary)]"
                   style={shuffleMode ? { color: APPLE_MUSIC_RED } : undefined}
                 />
               </button>
@@ -133,7 +133,7 @@ export function AppleMusicPlayer() {
             <button
               type="button"
               onClick={() => skipToPrevious()}
-              className="cursor-pointer rounded p-1 text-[var(--text-primary)] transition-colors hover:bg-[var(--fill-tertiary)]"
+              className="cursor-pointer rounded p-1 text-[var(--color-fg-primary)] transition-colors hover:bg-[var(--color-fill-tertiary)]"
             >
               <SkipBack className="h-5 w-5" />
             </button>
@@ -158,7 +158,7 @@ export function AppleMusicPlayer() {
             <button
               type="button"
               onClick={() => skipToNext()}
-              className="cursor-pointer rounded p-1 text-[var(--text-primary)] transition-colors hover:bg-[var(--fill-tertiary)]"
+              className="cursor-pointer rounded p-1 text-[var(--color-fg-primary)] transition-colors hover:bg-[var(--color-fill-tertiary)]"
             >
               <SkipForward className="h-5 w-5" />
             </button>
@@ -177,7 +177,7 @@ export function AppleMusicPlayer() {
               <button
                 type="button"
                 onClick={cycleRepeatMode}
-                className="cursor-pointer rounded p-1 transition-colors hover:bg-[var(--fill-tertiary)]"
+                className="cursor-pointer rounded p-1 transition-colors hover:bg-[var(--color-fill-tertiary)]"
               >
                 {repeatMode === 1 ? (
                   <Repeat1
@@ -186,7 +186,7 @@ export function AppleMusicPlayer() {
                   />
                 ) : (
                   <Repeat
-                    className="h-4 w-4 text-[var(--text-secondary)]"
+                    className="h-4 w-4 text-[var(--color-fg-secondary)]"
                     style={
                       repeatMode === 2 ? { color: APPLE_MUSIC_RED } : undefined
                     }
@@ -200,7 +200,7 @@ export function AppleMusicPlayer() {
         {/* Progress bar */}
         {!isMini && (
           <div className="flex w-full max-w-lg items-center gap-2">
-            <span className="w-10 text-right text-xs tabular-nums text-[var(--text-tertiary)]">
+            <span className="w-10 text-right text-xs tabular-nums text-[var(--color-fg-muted)]">
               {formatDurationSeconds(currentPlaybackTime)}
             </span>
             <ProgressBar
@@ -208,7 +208,7 @@ export function AppleMusicPlayer() {
               duration={currentPlaybackDuration}
               onSeek={seekToTime}
             />
-            <span className="w-10 text-xs tabular-nums text-[var(--text-tertiary)]">
+            <span className="w-10 text-xs tabular-nums text-[var(--color-fg-muted)]">
               {formatDurationSeconds(currentPlaybackDuration)}
             </span>
           </div>
@@ -220,7 +220,7 @@ export function AppleMusicPlayer() {
           <button
             type="button"
             onClick={() => setVolume(volume > 0 ? 0 : 0.5)}
-            className="cursor-pointer rounded p-1 text-[var(--text-secondary)] hover:bg-[var(--fill-tertiary)]"
+            className="cursor-pointer rounded p-1 text-[var(--color-fg-secondary)] hover:bg-[var(--color-fill-tertiary)]"
           >
             {volume === 0 ? (
               <VolumeX className="h-4 w-4" />
@@ -278,7 +278,7 @@ function ProgressBar({
       aria-valuenow={Math.round(progress)}
       aria-valuemin={0}
       aria-valuemax={100}
-      className="relative h-1 flex-1 cursor-pointer rounded-full bg-[var(--fill-tertiary)]"
+      className="relative h-1 flex-1 cursor-pointer rounded-full bg-[var(--color-fill-tertiary)]"
       onClick={handleClick}
     >
       <div

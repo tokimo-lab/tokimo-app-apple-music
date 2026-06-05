@@ -23,7 +23,7 @@ export function QueueView() {
 
   if (queueItems.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-[var(--text-tertiary)]">
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-[var(--color-fg-muted)]">
         <ListMusic size={40} strokeWidth={1} />
         <p className="text-sm">Queue is empty</p>
       </div>
@@ -37,7 +37,7 @@ export function QueueView() {
       {/* Now Playing */}
       {nowPlayingItem && (
         <section className="mb-6">
-          <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+          <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
             Now Playing
           </h3>
           <QueueItem
@@ -52,7 +52,7 @@ export function QueueView() {
       {/* Up Next */}
       {upNext.length > 0 && (
         <section>
-          <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+          <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
             Up Next · {upNext.length} {upNext.length === 1 ? "song" : "songs"}
           </h3>
           {upNext.map((item, i) => (
@@ -105,8 +105,8 @@ function QueueItem({
             loading="lazy"
           />
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--fill-tertiary)]">
-            <Play size={14} className="text-[var(--text-tertiary)]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--color-fill-tertiary)]">
+            <Play size={14} className="text-[var(--color-fg-muted)]" />
           </div>
         )}
         {isCurrent && (
@@ -123,20 +123,20 @@ function QueueItem({
       <div className="min-w-0 flex-1">
         <p
           className={`truncate text-sm font-medium ${
-            isCurrent ? "text-[#FA2D48]" : "text-[var(--text-primary)]"
+            isCurrent ? "text-[#FA2D48]" : "text-[var(--color-fg-primary)]"
           }`}
         >
           {name}
         </p>
         {artist && (
-          <p className="truncate text-xs text-[var(--text-secondary)]">
+          <p className="truncate text-xs text-[var(--color-fg-secondary)]">
             {artist}
           </p>
         )}
       </div>
 
       {durationMs > 0 && (
-        <span className="shrink-0 text-xs tabular-nums text-[var(--text-tertiary)]">
+        <span className="shrink-0 text-xs tabular-nums text-[var(--color-fg-muted)]">
           {formatDuration(durationMs)}
         </span>
       )}

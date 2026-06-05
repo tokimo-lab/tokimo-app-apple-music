@@ -84,12 +84,12 @@ export default function ForYouPage() {
 
   if (!isAuthorized) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 text-[var(--text-secondary)]">
+      <div className="flex h-full flex-col items-center justify-center gap-4 text-[var(--color-fg-secondary)]">
         <Sparkles size={48} strokeWidth={1} />
         <p className="text-base font-medium">
           Sign in for personalized recommendations
         </p>
-        <p className="text-sm text-[var(--text-tertiary)]">
+        <p className="text-sm text-[var(--color-fg-muted)]">
           Connect your Apple Music account to see music picked just for you
         </p>
         <Button
@@ -116,7 +116,7 @@ export default function ForYouPage() {
   if (error) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-[var(--text-secondary)]">{error}</p>
+        <p className="text-sm text-[var(--color-fg-secondary)]">{error}</p>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export default function ForYouPage() {
 
   if (!hasContent) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-[var(--text-tertiary)]">
+      <div className="flex h-full items-center justify-center text-sm text-[var(--color-fg-muted)]">
         No recommendations available yet. Listen to more music!
       </div>
     );
@@ -177,7 +177,7 @@ export default function ForYouPage() {
     <div className="h-full space-y-8 overflow-y-auto p-6">
       {recentlyPlayed.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             Recently Played
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">
@@ -197,7 +197,7 @@ export default function ForYouPage() {
 
       {recommendations.map((group) => (
         <section key={group.id}>
-          <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="mb-4 text-xl font-bold text-[var(--color-fg-primary)]">
             {group.title}
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-2">

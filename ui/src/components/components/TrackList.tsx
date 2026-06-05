@@ -105,7 +105,7 @@ export function TrackList({
     <div className="w-full" ref={containerRef}>
       {/* Header */}
       <div
-        className="grid items-center gap-3 border-b border-border-base px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[var(--text-tertiary)]"
+        className="grid items-center gap-3 border-b border-border-base px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[var(--color-fg-muted)]"
         style={{
           gridTemplateColumns: buildGridColumns(
             showTrackNumber,
@@ -250,7 +250,7 @@ function TrackRow({
       role="button"
       tabIndex={0}
       className={`group grid cursor-pointer items-center gap-3 rounded-md px-3 py-1.5 transition-colors ${
-        isCurrent ? "bg-[#FA2D48]/10" : "hover:bg-[var(--fill-tertiary)]"
+        isCurrent ? "bg-[#FA2D48]/10" : "hover:bg-[var(--color-fill-tertiary)]"
       }`}
       style={{
         gridTemplateColumns: buildGridColumns(
@@ -293,7 +293,7 @@ function TrackRow({
           ) : isCurrent ? (
             <Volume2 size={14} color={APPLE_MUSIC_RED} />
           ) : (
-            <span className="text-sm text-[var(--text-tertiary)]">
+            <span className="text-sm text-[var(--color-fg-muted)]">
               {trackNumber ?? index + 1}
             </span>
           )}
@@ -313,8 +313,8 @@ function TrackRow({
               loading="lazy"
             />
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--fill-tertiary)]">
-              <Play size={14} className="text-[var(--text-tertiary)]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--color-fill-tertiary)]">
+              <Play size={14} className="text-[var(--color-fg-muted)]" />
             </div>
           )}
           {hovered && !showTrackNumber && (
@@ -338,13 +338,13 @@ function TrackRow({
         <div className="flex items-center gap-1.5">
           <span
             className={`truncate text-sm font-medium ${
-              isCurrent ? "text-[#FA2D48]" : "text-[var(--text-primary)]"
+              isCurrent ? "text-[#FA2D48]" : "text-[var(--color-fg-primary)]"
             }`}
           >
             {name}
           </span>
           {contentRating === "explicit" && (
-            <span className="shrink-0 rounded bg-[var(--fill-tertiary)] px-1 py-px text-[10px] font-bold uppercase text-[var(--text-tertiary)]">
+            <span className="shrink-0 rounded bg-[var(--color-fill-tertiary)] px-1 py-px text-[10px] font-bold uppercase text-[var(--color-fg-muted)]">
               E
             </span>
           )}
@@ -352,7 +352,7 @@ function TrackRow({
         {artistName && (
           <button
             type="button"
-            className="truncate text-left text-xs text-[var(--text-secondary)] cursor-pointer hover:underline"
+            className="truncate text-left text-xs text-[var(--color-fg-secondary)] cursor-pointer hover:underline"
             onClick={(e) => {
               e.stopPropagation();
               onArtistClick(artistName, track);
@@ -367,7 +367,7 @@ function TrackRow({
       {showAlbum && (
         <button
           type="button"
-          className="truncate text-left text-xs text-[var(--text-secondary)] cursor-pointer hover:underline"
+          className="truncate text-left text-xs text-[var(--color-fg-secondary)] cursor-pointer hover:underline"
           onClick={(e) => {
             e.stopPropagation();
             if (albumName) onAlbumClick(albumName, track);
@@ -379,7 +379,7 @@ function TrackRow({
 
       {/* Duration */}
       {showDuration && (
-        <span className="text-right text-xs text-[var(--text-tertiary)]">
+        <span className="text-right text-xs text-[var(--color-fg-muted)]">
           {durationMs > 0 ? formatDuration(durationMs) : "—"}
         </span>
       )}
@@ -407,7 +407,7 @@ function TrackRow({
           <Tooltip title="More">
             <button
               type="button"
-              className={`cursor-pointer rounded p-1 text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)] ${
+              className={`cursor-pointer rounded p-1 text-[var(--color-fg-muted)] transition-colors hover:text-[var(--color-fg-primary)] ${
                 hovered ? "opacity-100" : "opacity-0"
               }`}
               onClick={(e) => e.stopPropagation()}

@@ -84,9 +84,9 @@ function adjustBrightness(
 }
 
 const DEFAULT_COLORS: NowPlayingPalette = {
-  bg: "var(--bg-base)",
-  text1: "var(--text-primary)",
-  text2: "var(--text-secondary)",
+  bg: "var(--color-surface-base)",
+  text1: "var(--color-fg-primary)",
+  text2: "var(--color-fg-secondary)",
   control: "rgba(255, 255, 255, 0.88)",
   controlTrack: "rgba(255, 255, 255, 0.16)",
   progressFill: "rgba(255, 255, 255, 0.96)",
