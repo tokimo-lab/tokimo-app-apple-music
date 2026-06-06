@@ -28,3 +28,6 @@ background    = true
 [cli]
 name = "tokimo-app-apple-music"
 description = "Query Apple Music songs and albums, and download them to local cache."
+
+[skills]
+dir = "skills"
