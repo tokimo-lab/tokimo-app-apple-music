@@ -29,7 +29,7 @@ use tracing::{error, info};
 #[command(
     name = "tokimo-app-apple-music",
     about = "Apple Music — Tokimo 子 app CLI",
-    long_about = "Apple Music CLI — 通过 Tokimo 主 server 调用 apple-music app。\n\n前置条件：\n1. 启动 Tokimo 主 server (默认 http://localhost:5678)\n2. 浏览器登录后，去「设置 → API Keys」创建一个 token (mm_xxx)\n3. 把 token 通过 --tokimo-token 或 TOKIMO_TOKEN env 传入",
+    long_about = "Apple Music CLI — 通过 Tokimo 主 server 调用 apple-music app。",
     term_width = 100
 )]
 struct Cli {
