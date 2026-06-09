@@ -1,5 +1,5 @@
 ---
-name: latest-albums
+name: apple-music-latest-albums
 description: "Find an artist's latest/newest albums on Apple Music. Resolve the artist ID, then list their albums (sorted newest-first) to read the most recent releases off the top rows."
 when-to-use: "When the user asks for an artist's latest/newest albums or recent releases on Apple Music."
 argument-hint: "<artist name>"

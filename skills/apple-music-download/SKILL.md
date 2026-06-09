@@ -1,5 +1,5 @@
 ---
-name: download-music
+name: apple-music-download
 description: "Download an Apple Music song/track to local cache. Use to find a track by name (or via an album's track list), confirm it, and download the decrypted audio file at a chosen quality."
 when-to-use: "When the user wants to download/save an Apple Music song or track to local files."
 argument-hint: "<song name or track id>"
