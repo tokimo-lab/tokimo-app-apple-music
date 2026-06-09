@@ -9,14 +9,14 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.5",
-    "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#0abcc1ecb2af836a80911ff6cf16ae8295f041a4",
-    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#683e9322d6e96ded543c97805b25736750a09f11",
+    "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#b5db80a47b715e10f450a4157018ec7eb38d723e",
+    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#511e982d4fc87e487a04501b29c4f5083164bda6",
     "lucide-react": "^1.11.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
-    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#5be9a3e036908730a0ae7d9e49c7b3f76d7d30cb",
+    "@tokimo/app-builder": "github:tokimo-lab/tokimo-app-builder#2085574f7c070c20a32bce6a254348e16dfee01d",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.3.0",
