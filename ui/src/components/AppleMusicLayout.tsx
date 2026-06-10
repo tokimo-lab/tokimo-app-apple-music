@@ -191,7 +191,7 @@ export function AppleMusicLayout() {
           collapsed={sidebarCollapsed}
           onToggleCollapse={onToggleCollapse}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-[var(--color-surface-content)]">
           <Suspense fallback={PageFallback}>
             <PageContent page={currentPage} />
           </Suspense>
