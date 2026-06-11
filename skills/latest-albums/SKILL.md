@@ -17,6 +17,13 @@ is sorted by release date **descending**, so the top rows are the latest.
 
 - The user must be **logged into Apple Music** in the app (storefront set) for catalog access. Verify with `status`.
 
+## `--region` Option
+
+All subcommands (`search`, `album`, `song`, `artist`, `download`) accept an optional `--region <code>` (or `-r`) flag to browse a different region's catalog (e.g. `--region jp`, `--region cn`).
+
+- If omitted, the user's account storefront is used (default behavior).
+- If the specified region differs from the account region, a warning is printed: music in the browsing region is **view-only and cannot be downloaded**.
+
 ## Quick Reference
 
 | Step | Command |
@@ -26,6 +33,8 @@ is sorted by release date **descending**, so the top rows are the latest.
 | List albums (newest-first) | `tokimo-app-apple-music artist <artist_id>` |
 | Album details (optional) | `tokimo-app-apple-music album <album_id>` |
 | Keyword album search (alt) | `tokimo-app-apple-music search "<keyword>" --types albums` |
+
+> **Tip:** Add `--region <code>` (e.g. `--region jp`) to any command to browse a different region's catalog. See [Region Option](#--region-option) for details.
 
 ## Workflow
 

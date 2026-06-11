@@ -17,6 +17,14 @@ Find a track's catalog ID, then download the decrypted audio to disk.
 - Downloading requires an **active Apple Music subscription**.
 - The `<track_id>` passed to `download` must be a **SONG id** (not an album or artist id).
 
+## `--region` Option
+
+All subcommands (`search`, `album`, `song`, `artist`, `download`) accept an optional `--region <code>` (or `-r`) flag to browse a different region's catalog (e.g. `--region jp`, `--region cn`).
+
+- If omitted, the user's account storefront is used (default behavior).
+- If the specified region differs from the account region, a warning is printed: music in the browsing region is **view-only and cannot be downloaded**.
+- To download, always use the account's own region (i.e. omit `--region`).
+
 ## Quick Reference
 
 | Step | Command |
@@ -26,6 +34,8 @@ Find a track's catalog ID, then download the decrypted audio to disk.
 | Get IDs from an album's tracks | `tokimo-app-apple-music album <album_id>` |
 | Confirm the track (optional) | `tokimo-app-apple-music song <track_id>` |
 | Download | `tokimo-app-apple-music download <track_id> --output <path> --quality <lossless\|high\|standard>` |
+
+> **Tip:** Add `--region <code>` (e.g. `--region jp`) to any command to browse a different region's catalog. See [Region Option](#--region-option) for details.
 
 ## Workflow
 

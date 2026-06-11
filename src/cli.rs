@@ -98,9 +98,9 @@ fn resolve_storefront(account_storefront: &str, region_override: Option<&str>) -
         Some(region) => {
             let region = region.to_lowercase();
             if region != account_storefront {
-                eprintln!("\n  ⚠ 当前浏览区域 ({region}) 与账号所在区域 ({account_storefront}) 不一致。");
-                eprintln!("    当前浏览区域的音乐只能查看，无法下载。");
-                eprintln!("    请去掉 --region 参数获取正确的音乐 ID。\n");
+                eprintln!("\n  ⚠ Browsing region ({region}) differs from your account region ({account_storefront}).");
+                eprintln!("    Music in this region is view-only and cannot be downloaded.");
+                eprintln!("    Remove --region to get the correct music IDs for download.\n");
             }
             region
         }

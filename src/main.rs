@@ -56,7 +56,7 @@ enum Command {
         /// 页码（从 1 开始）
         #[arg(short, long, default_value_t = 1)]
         page: u32,
-        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
@@ -67,7 +67,7 @@ enum Command {
         /// 输出原始 JSON 响应
         #[arg(long)]
         raw: bool,
-        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
@@ -81,7 +81,7 @@ enum Command {
         /// 获取并显示完整歌词
         #[arg(long)]
         lyrics: bool,
-        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
@@ -92,7 +92,7 @@ enum Command {
         /// 输出原始 JSON 响应
         #[arg(long)]
         raw: bool,
-        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
@@ -106,7 +106,7 @@ enum Command {
         /// 音质: lossless, high, standard
         #[arg(short, long, default_value = "high")]
         quality: String,
-        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
