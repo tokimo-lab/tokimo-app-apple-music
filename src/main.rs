@@ -28,8 +28,8 @@ use tracing::{error, info};
 #[derive(Parser, Debug)]
 #[command(
     name = "tokimo-app-apple-music",
-    about = "Apple Music — Tokimo 子 app CLI",
-    long_about = "Apple Music CLI — 通过 Tokimo 主 server 调用 apple-music app。",
+    about = "Apple Music — Tokimo app CLI",
+    long_about = "Apple Music CLI — call the apple-music app via the Tokimo main server.",
     term_width = 100
 )]
 struct Cli {
@@ -41,69 +41,69 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Command {
-    /// 检查 Apple Music 连接状态（认证 + 占位输出）。
+    /// Check Apple Music connection status (auth + placeholder output).
     Status,
-    /// 搜索 Apple Music 目录（歌曲、专辑）。
+    /// Search the Apple Music catalog (songs, albums, artists, playlists).
     Search {
-        /// 搜索关键词
+        /// Search keyword
         query: String,
-        /// 搜索类型，逗号分隔 (songs,albums)
+        /// Search types, comma-separated (songs,albums,artists,playlists)
         #[arg(short, long, default_value = "songs,albums")]
         types: String,
-        /// 每种类型最多返回的结果数
+        /// Max results per type
         #[arg(short, long, default_value_t = 25)]
         limit: u32,
-        /// 页码（从 1 开始）
+        /// Page number (starting from 1)
         #[arg(short, long, default_value_t = 1)]
         page: u32,
         /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
-    /// 查看专辑详情（曲目列表、发行日期、厂牌等）。
+    /// Show album details (track list, release date, label, etc).
     Album {
-        /// Apple Music 专辑 ID
+        /// Apple Music album ID
         album_id: String,
-        /// 输出原始 JSON 响应
+        /// Output raw JSON response
         #[arg(long)]
         raw: bool,
         /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
-    /// 查看歌曲详情（专辑、歌词状态、ISRC 等）。
+    /// Show song details (album, lyrics status, ISRC, etc).
     Song {
         /// Apple Music song ID
         song_id: String,
-        /// 输出原始 JSON 响应
+        /// Output raw JSON response
         #[arg(long)]
         raw: bool,
-        /// 获取并显示完整歌词
+        /// Fetch and display full lyrics
         #[arg(long)]
         lyrics: bool,
         /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
-    /// 查看歌手详情（简介、专辑列表）。
+    /// Show artist details (bio, album list).
     Artist {
         /// Apple Music artist ID
         artist_id: String,
-        /// 输出原始 JSON 响应
+        /// Output raw JSON response
         #[arg(long)]
         raw: bool,
         /// Browsing region (e.g. us, jp, cn). Defaults to account region
         #[arg(short, long)]
         region: Option<String>,
     },
-    /// 下载并解密一首歌曲到本地文件。
+    /// Download and decrypt a song to a local file.
     Download {
         /// Apple Music track ID
         track_id: String,
-        /// 输出文件路径或目录
+        /// Output file path or directory
         #[arg(short, long, default_value = ".")]
         output: PathBuf,
-        /// 音质: lossless, high, standard
+        /// Audio quality: lossless, high, standard
         #[arg(short, long, default_value = "high")]
         quality: String,
         /// Browsing region (e.g. us, jp, cn). Defaults to account region
