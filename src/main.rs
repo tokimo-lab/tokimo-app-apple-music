@@ -56,6 +56,9 @@ enum Command {
         /// 页码（从 1 开始）
         #[arg(short, long, default_value_t = 1)]
         page: u32,
+        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        #[arg(short, long)]
+        region: Option<String>,
     },
     /// 查看专辑详情（曲目列表、发行日期、厂牌等）。
     Album {
@@ -64,6 +67,9 @@ enum Command {
         /// 输出原始 JSON 响应
         #[arg(long)]
         raw: bool,
+        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        #[arg(short, long)]
+        region: Option<String>,
     },
     /// 查看歌曲详情（专辑、歌词状态、ISRC 等）。
     Song {
@@ -75,6 +81,9 @@ enum Command {
         /// 获取并显示完整歌词
         #[arg(long)]
         lyrics: bool,
+        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        #[arg(short, long)]
+        region: Option<String>,
     },
     /// 查看歌手详情（简介、专辑列表）。
     Artist {
@@ -83,6 +92,9 @@ enum Command {
         /// 输出原始 JSON 响应
         #[arg(long)]
         raw: bool,
+        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        #[arg(short, long)]
+        region: Option<String>,
     },
     /// 下载并解密一首歌曲到本地文件。
     Download {
@@ -94,6 +106,9 @@ enum Command {
         /// 音质: lossless, high, standard
         #[arg(short, long, default_value = "high")]
         quality: String,
+        /// 浏览区域 (如 us, jp, cn)，不传则使用账号所在区域
+        #[arg(short, long)]
+        region: Option<String>,
     },
 }
 
@@ -125,20 +140,27 @@ async fn main() -> anyhow::Result<()> {
             // CLI 模式：纯文本错误，不输出 tracing 日志
             let result = match cmd {
                 Command::Status => cli::run_status(auth).await,
-                Command::Album { album_id, raw } => cli::run_album(auth, album_id, raw).await,
-                Command::Song { song_id, raw, lyrics } => cli::run_song(auth, song_id, raw, lyrics).await,
-                Command::Artist { artist_id, raw } => cli::run_artist(auth, artist_id, raw).await,
+                Command::Album { album_id, raw, region } => cli::run_album(auth, album_id, raw, region).await,
+                Command::Song {
+                    song_id,
+                    raw,
+                    lyrics,
+                    region,
+                } => cli::run_song(auth, song_id, raw, lyrics, region).await,
+                Command::Artist { artist_id, raw, region } => cli::run_artist(auth, artist_id, raw, region).await,
                 Command::Search {
                     query,
                     types,
                     limit,
                     page,
-                } => cli::run_search(auth, query, types, limit, page).await,
+                    region,
+                } => cli::run_search(auth, query, types, limit, page, region).await,
                 Command::Download {
                     track_id,
                     output,
                     quality,
-                } => cli::run_download(auth, track_id, output, quality).await,
+                    region,
+                } => cli::run_download(auth, track_id, output, quality, region).await,
             };
             if let Err(error) = result {
                 eprintln!("Error: {error:#}");

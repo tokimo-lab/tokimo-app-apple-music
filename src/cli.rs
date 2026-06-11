@@ -89,6 +89,25 @@ async fn read_storefront(db: &DatabaseConnection, user_id: &Uuid) -> anyhow::Res
         .ok_or_else(|| anyhow::anyhow!("storefront not set. Please log in via the app first."))
 }
 
+/// Resolve the effective storefront for an API call.
+///
+/// If the user passes `--region`, use that; otherwise use the account storefront.
+/// Prints a warning when the override region differs from the account region.
+fn resolve_storefront(account_storefront: &str, region_override: Option<&str>) -> String {
+    match region_override {
+        Some(region) => {
+            let region = region.to_lowercase();
+            if region != account_storefront {
+                eprintln!("\n  ⚠ 当前浏览区域 ({region}) 与账号所在区域 ({account_storefront}) 不一致。");
+                eprintln!("    当前浏览区域的音乐只能查看，无法下载。");
+                eprintln!("    请去掉 --region 参数获取正确的音乐 ID。\n");
+            }
+            region
+        }
+        None => account_storefront.to_owned(),
+    }
+}
+
 // ── Subcommands ──────────────────────────────────────────────────────────────
 
 /// `status` — authenticate and print placeholder.
@@ -100,11 +119,17 @@ pub async fn run_status(auth: TokimoAuthArgs) -> anyhow::Result<()> {
 }
 
 /// `album` — show album detail with track listing.
-pub async fn run_album(auth: TokimoAuthArgs, album_id: String, raw: bool) -> anyhow::Result<()> {
+pub async fn run_album(
+    auth: TokimoAuthArgs,
+    album_id: String,
+    raw: bool,
+    region: Option<String>,
+) -> anyhow::Result<()> {
     let (db, user_id) = init(&auth).await?;
 
     let music_user_token = read_music_user_token(&db, &user_id).await.ok();
-    let storefront = read_storefront(&db, &user_id).await?;
+    let account_storefront = read_storefront(&db, &user_id).await?;
+    let storefront = resolve_storefront(&account_storefront, region.as_deref());
 
     if raw {
         let json = api::get_album_detail_json(music_user_token.as_deref(), &storefront, &album_id)
@@ -182,11 +207,18 @@ pub async fn run_album(auth: TokimoAuthArgs, album_id: String, raw: bool) -> any
 }
 
 /// `song` — show song detail.
-pub async fn run_song(auth: TokimoAuthArgs, song_id: String, raw: bool, lyrics: bool) -> anyhow::Result<()> {
+pub async fn run_song(
+    auth: TokimoAuthArgs,
+    song_id: String,
+    raw: bool,
+    lyrics: bool,
+    region: Option<String>,
+) -> anyhow::Result<()> {
     let (db, user_id) = init(&auth).await?;
 
     let music_user_token = read_music_user_token(&db, &user_id).await.ok();
-    let storefront = read_storefront(&db, &user_id).await?;
+    let account_storefront = read_storefront(&db, &user_id).await?;
+    let storefront = resolve_storefront(&account_storefront, region.as_deref());
 
     // --lyrics mode: fetch and display lyrics
     if lyrics {
@@ -286,11 +318,17 @@ pub async fn run_song(auth: TokimoAuthArgs, song_id: String, raw: bool, lyrics: 
 }
 
 /// `artist` — show artist detail with album listing.
-pub async fn run_artist(auth: TokimoAuthArgs, artist_id: String, raw: bool) -> anyhow::Result<()> {
+pub async fn run_artist(
+    auth: TokimoAuthArgs,
+    artist_id: String,
+    raw: bool,
+    region: Option<String>,
+) -> anyhow::Result<()> {
     let (db, user_id) = init(&auth).await?;
 
     let music_user_token = read_music_user_token(&db, &user_id).await.ok();
-    let storefront = read_storefront(&db, &user_id).await?;
+    let account_storefront = read_storefront(&db, &user_id).await?;
+    let storefront = resolve_storefront(&account_storefront, region.as_deref());
 
     if raw {
         let json = api::get_artist_detail_json(music_user_token.as_deref(), &storefront, &artist_id)
@@ -343,12 +381,14 @@ pub async fn run_search(
     types: String,
     limit: u32,
     page: u32,
+    region: Option<String>,
 ) -> anyhow::Result<()> {
     let (db, user_id) = init(&auth).await?;
     let offset = (page.saturating_sub(1)) * limit;
 
     let music_user_token = read_music_user_token(&db, &user_id).await.ok();
-    let storefront = read_storefront(&db, &user_id).await?;
+    let account_storefront = read_storefront(&db, &user_id).await?;
+    let storefront = resolve_storefront(&account_storefront, region.as_deref());
 
     let results = api::search_catalog(music_user_token.as_deref(), &storefront, &query, &types, limit, offset)
         .await
@@ -453,12 +493,16 @@ pub async fn run_download(
     track_id: String,
     output: PathBuf,
     quality: String,
+    region: Option<String>,
 ) -> anyhow::Result<()> {
     let (db, user_id) = init(&auth).await?;
 
     let music_user_token = read_music_user_token(&db, &user_id)
         .await
         .context("music-user-token is required for download. Save it first via the app UI.")?;
+
+    let account_storefront = read_storefront(&db, &user_id).await?;
+    let _storefront = resolve_storefront(&account_storefront, region.as_deref());
 
     let quality = AudioQuality::from_str_loose(&quality);
 
