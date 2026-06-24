@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.0",
-    "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#b5db80a47b715e10f450a4157018ec7eb38d723e",
-    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#b3a7fa8af87ad6e5d71954c4adf9683b131c72f7",
+    "@tokimo/sdk": "github:tokimo-lab/tokimo-package-sdk#84fc98c8c0af8688d12568e3ec8d14e5b3e5c865",
+    "@tokimo/ui": "github:tokimo-lab/tokimo-ui#7d358dcee47ef0cdcbff9bc74474a5b71a1455c4",
     "lucide-react": "^1.7.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
