@@ -33,7 +33,7 @@ export function QueueView() {
   const upNext = queueItems.slice(queuePosition + 1);
 
   return (
-    <div className="h-full overflow-y-auto px-4 py-4">
+    <div className="apple-music-hover-scrollbar h-full overflow-y-auto px-4 py-4">
       {/* Now Playing */}
       {nowPlayingItem && (
         <section className="mb-6">

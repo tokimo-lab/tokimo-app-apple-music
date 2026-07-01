@@ -2,3 +2,38 @@
 @import "@tokimo/ui/bundle.css";
 
 @source "./**/*.{ts,tsx}";
+
+.apple-music-hover-scrollbar {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+
+.apple-music-hover-scrollbar:hover,
+.apple-music-hover-scrollbar:focus-within {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.apple-music-hover-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.apple-music-hover-scrollbar::-webkit-scrollbar-track,
+.apple-music-hover-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.apple-music-hover-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.apple-music-hover-scrollbar:hover::-webkit-scrollbar-thumb,
+.apple-music-hover-scrollbar:focus-within::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+}
+
+.apple-music-hover-scrollbar:hover::-webkit-scrollbar-thumb:hover,
+.apple-music-hover-scrollbar:focus-within::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}

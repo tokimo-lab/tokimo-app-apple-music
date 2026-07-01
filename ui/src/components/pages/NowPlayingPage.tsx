@@ -413,17 +413,29 @@ export default function NowPlayingPage() {
 
   // ResizeObserver-based responsive layout (breakpoints based on window width, not viewport)
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isNarrow, setIsNarrow] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(900);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
-      setIsNarrow((entries[0]?.contentRect.width ?? 800) < 720);
+      setContainerWidth(entries[0]?.contentRect.width ?? 900);
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  const isNarrow = containerWidth < 720;
+  const nowPlayingGridStyle = useMemo(() => {
+    if (isNarrow) return undefined;
+    if (containerWidth >= 1500) {
+      return { gridTemplateColumns: "20rem minmax(0,1fr)" };
+    }
+    if (containerWidth >= 1200) {
+      return { gridTemplateColumns: "19rem minmax(0,1fr)" };
+    }
+    return { gridTemplateColumns: "18rem minmax(0,1fr)" };
+  }, [containerWidth, isNarrow]);
 
   const isPlaying = playbackState === MusicKit.PlaybackStates.playing;
   const attrs = nowPlayingItem?.attributes;
@@ -444,6 +456,7 @@ export default function NowPlayingPage() {
     controlTrack,
     progressFill,
   } = useNowPlayingColors(artwork);
+  const titlebarSafeTopClass = isMacStyle ? "" : "pt-9";
 
   const handlePlayPause = useCallback(() => {
     if (isPlaying) pause();
@@ -477,14 +490,17 @@ export default function NowPlayingPage() {
 
         {/* Main content */}
         {showQueue ? (
-          <div className="flex-1 overflow-hidden">
+          <div className={`flex-1 overflow-hidden ${titlebarSafeTopClass}`}>
             <QueueView />
           </div>
         ) : (
-          <div className="flex flex-1 gap-6 overflow-hidden px-6 pb-2">
+          <div
+            className={`${isNarrow ? "flex" : "grid"} flex-1 gap-6 overflow-hidden px-6 pb-2 ${titlebarSafeTopClass}`}
+            style={nowPlayingGridStyle}
+          >
             {/* Spinning disc + artwork (left side on wide, hidden on narrow) */}
             <div
-              className={`flex shrink-0 items-center justify-center ${isNarrow ? "hidden" : ""}`}
+              className={`min-w-0 items-center justify-center ${isNarrow ? "hidden" : "flex"}`}
             >
               <SpinningDisc
                 artworkUrl={artworkUrl}

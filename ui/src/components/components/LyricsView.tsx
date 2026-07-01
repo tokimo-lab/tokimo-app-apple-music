@@ -83,10 +83,10 @@ export function LyricsView() {
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-auto px-6 py-8"
+      className="apple-music-hover-scrollbar h-full overflow-y-auto px-6 py-8"
       onScroll={handleScroll}
     >
-      <div className="mx-auto flex max-w-lg flex-col gap-1">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-1">
         {lyrics.map((line, i) => {
           const isActive = i === activeIndex;
           const isPast = activeIndex >= 0 && i < activeIndex;
