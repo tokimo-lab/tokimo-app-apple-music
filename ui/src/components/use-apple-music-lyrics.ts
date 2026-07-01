@@ -46,14 +46,6 @@ function parseTTML(ttml: string): AppleMusicLyricLine[] {
   return lines;
 }
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 function currentLyricIndex(lines: AppleMusicLyricLine[], time: number): number {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -78,6 +70,7 @@ function lyricProgress(
 
 export function useAppleMusicLyrics(
   trackId: string | null | undefined,
+  storefront: string,
   getCurrentTime: () => number,
   enabled = true,
 ): UseAppleMusicLyricsResult {
@@ -113,7 +106,10 @@ export function useAppleMusicLyrics(
       try {
         let catalogId: string = assuredTrackId;
         if (catalogId.startsWith("i.")) {
-          const resolved = await resolveLibrarySongToCatalog(catalogId);
+          const resolved = await resolveLibrarySongToCatalog(
+            storefront,
+            catalogId,
+          );
           if (controller.signal.aborted) return;
           if (!resolved) {
             setNoLyrics(true);
@@ -123,8 +119,7 @@ export function useAppleMusicLyrics(
           catalogId = resolved;
         }
 
-        const sf = getStorefront();
-        const targetUrl = `https://amp-api-edge.music.apple.com/v1/catalog/${sf}/songs/${catalogId}/lyrics`;
+        const targetUrl = `https://amp-api-edge.music.apple.com/v1/catalog/${storefront}/songs/${catalogId}/lyrics`;
         const resp = await fetch("/api/apps/apple-music/proxy", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -165,7 +160,7 @@ export function useAppleMusicLyrics(
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [enabled, resolvedTrackId]);
+  }, [enabled, resolvedTrackId, storefront]);
 
   useEffect(() => {
     if (!enabled || lines.length === 0) {

@@ -13,7 +13,9 @@ use tracing::info;
 
 use crate::error::{ApiResponse, AppError, ok};
 
-use super::{AppCaller, AppCtx, USER_AGENT, get_developer_token, read_user_music_token, stream_cache};
+use super::{
+    AppCaller, AppCtx, USER_AGENT, get_developer_token, read_user_music_token, read_user_storefront, stream_cache,
+};
 
 // ── /get-key ──────────────────────────────────────────────────────────────────
 
@@ -45,21 +47,30 @@ pub async fn get_decryption_key_handler(
     let music_user_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
         .await?
         .ok_or_else(|| AppError::bad_request("No music-user-token stored. Please login to Apple Music first."))?;
+    let storefront = read_user_storefront(&ctx.openapi, &caller.cookie_header).await?;
 
     info!("[AppleMusic] get-key request for track {}", body.track_id);
 
     let track_id = body.track_id.clone();
     let user_token = music_user_token.clone();
+    let storefront_for_key = storefront.clone();
     let result = super::api::call_with_dev_token_retry("get_decryption_key", || {
         let track_id = track_id.clone();
         let user_token = user_token.clone();
+        let storefront = storefront_for_key.clone();
         async move {
             let token = get_developer_token()
                 .await
                 .map_err(|e| AppError::Internal(e.to_string()))?;
-            download::get_decryption_key(&token, &user_token, &track_id, AudioQuality::default())
-                .await
-                .map_err(|e| AppError::Internal(format!("Decryption pipeline failed: {e}")))
+            download::get_decryption_key(
+                &token,
+                &user_token,
+                &track_id,
+                storefront.as_deref(),
+                AudioQuality::default(),
+            )
+            .await
+            .map_err(|e| AppError::Internal(format!("Decryption pipeline failed: {e}")))
         }
     })
     .await?;
@@ -94,6 +105,7 @@ pub async fn get_audio_handler(
     let music_user_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
         .await?
         .ok_or_else(|| AppError::bad_request("No music-user-token stored. Please login to Apple Music first."))?;
+    let storefront = read_user_storefront(&ctx.openapi, &caller.cookie_header).await?;
 
     let quality = AudioQuality::High;
     info!(
@@ -120,19 +132,29 @@ pub async fn get_audio_handler(
     let user_token = music_user_token.clone();
     let tid = track_id.clone();
     let cached = cached_url.clone();
+    let storefront_for_download = storefront.clone();
 
     let path = super::api::call_with_dev_token_retry("get_audio", || {
         let user_token = user_token.clone();
         let tid = tid.clone();
         let cached = cached.clone();
         let cache = cache_dir.clone();
+        let storefront = storefront_for_download.clone();
         async move {
             let token = get_developer_token()
                 .await
                 .map_err(|e| AppError::Internal(e.to_string()))?;
-            stream::download_decrypted_audio(&token, &user_token, &tid, &cache, cached.as_deref(), quality)
-                .await
-                .map_err(|e| AppError::Internal(format!("Audio stream failed: {e}")))
+            stream::download_decrypted_audio(
+                &token,
+                &user_token,
+                &tid,
+                &cache,
+                cached.as_deref(),
+                storefront.as_deref(),
+                quality,
+            )
+            .await
+            .map_err(|e| AppError::Internal(format!("Audio stream failed: {e}")))
         }
     })
     .await?;

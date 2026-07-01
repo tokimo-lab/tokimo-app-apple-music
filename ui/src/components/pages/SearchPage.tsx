@@ -6,14 +6,6 @@ import { MediaItemCard } from "../components/MediaItemCard";
 import { TrackList } from "../components/TrackList";
 import { useArtistNavigation } from "../hooks/useArtistNavigation";
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 interface SearchResults {
   songs: MusicKit.Resource[];
   albums: MusicKit.Resource[];
@@ -38,8 +30,14 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 export default function SearchPage() {
-  const { api, navigateTo, currentPage, setQueue, setQueueFromTracks } =
-    useAppleMusic();
+  const {
+    api,
+    accountStorefront,
+    navigateTo,
+    currentPage,
+    setQueue,
+    setQueueFromTracks,
+  } = useAppleMusic();
   const navigateToArtist = useArtistNavigation();
   const initialQuery =
     currentPage.type === "search" ? (currentPage.query ?? "") : "";
@@ -74,8 +72,7 @@ export default function SearchPage() {
     setLoading(true);
     setSearched(true);
     try {
-      const sf = getStorefront();
-      const res = await api(`/v1/catalog/${sf}/search`, {
+      const res = await api(`/v1/catalog/${accountStorefront}/search`, {
         term: term.trim(),
         types: "songs,albums,artists,playlists",
         limit: 25,

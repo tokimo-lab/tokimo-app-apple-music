@@ -131,16 +131,19 @@ pub async fn get_decryption_key(
     developer_token: &str,
     media_user_token: &str,
     track_id: &str,
+    storefront: Option<&str>,
     quality: AudioQuality,
 ) -> Result<DecryptionResult, String> {
     let client = build_client()?;
+    let storefront = storefront.filter(|s| !s.is_empty()).unwrap_or("us");
 
     // Step 1: Get webplayback to find stream URL
     info!(
         "[AppleMusic] Getting webplayback for track {track_id} (quality={:?})",
         quality
     );
-    let mut stream_info = get_stream_info(&client, developer_token, media_user_token, track_id, quality).await?;
+    let mut stream_info =
+        get_stream_info(&client, developer_token, media_user_token, track_id, storefront, quality).await?;
     debug!("[AppleMusic] Stream URL: {}", stream_info.stream_url);
 
     // FairPlay path: lossless with wrapper available — skip Widevine entirely
@@ -158,7 +161,9 @@ pub async fn get_decryption_key(
         }
         // The ALAC variant only has FairPlay keys — re-fetch using AAC quality to get Widevine PSSH
         info!("[AppleMusic] FairPlay wrapper not enabled, falling back to Widevine AAC");
-        stream_info = get_stream_info(&client, developer_token, media_user_token, track_id, AudioQuality::High).await?;
+        stream_info =
+            get_stream_info(&client, developer_token, media_user_token, track_id, storefront, AudioQuality::High)
+                .await?;
         debug!("[AppleMusic] AAC fallback stream URL: {}", stream_info.stream_url);
     }
 
@@ -234,6 +239,7 @@ async fn get_stream_info(
     dev_token: &str,
     mut_token: &str,
     track_id: &str,
+    storefront: &str,
     quality: AudioQuality,
 ) -> Result<StreamInfo, String> {
     // Resolve library IDs (i.xxx) to catalog IDs
@@ -245,7 +251,7 @@ async fn get_stream_info(
     let track_id = &resolved_id;
 
     // Try modern flow first (extendedAssetUrls → enhancedHls)
-    let modern_result = get_stream_info_modern(client, dev_token, mut_token, track_id, quality).await;
+    let modern_result = get_stream_info_modern(client, dev_token, mut_token, track_id, storefront, quality).await;
 
     match &modern_result {
         Ok(info) if !info.widevine_psshs.is_empty() => {
@@ -281,10 +287,11 @@ async fn get_stream_info_modern(
     dev_token: &str,
     mut_token: &str,
     track_id: &str,
+    storefront: &str,
     quality: AudioQuality,
 ) -> Result<StreamInfo, String> {
     // Fetch song metadata with extendedAssetUrls
-    let url = format!("{AMP_API_URL}/v1/catalog/us/songs/{track_id}");
+    let url = format!("{AMP_API_URL}/v1/catalog/{storefront}/songs/{track_id}");
     let resp = client
         .get(&url)
         .header("Authorization", format!("Bearer {dev_token}"))

@@ -6,14 +6,6 @@ import { ArtworkImage } from "../components/ArtworkImage";
 import { MediaItemCard } from "../components/MediaItemCard";
 import { TrackList } from "../components/TrackList";
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 interface ArtistData {
   id: string;
   name: string;
@@ -26,6 +18,7 @@ interface ArtistData {
 export default function ArtistPage() {
   const {
     api,
+    accountStorefront,
     currentPage,
     goBack,
     canGoBack,
@@ -78,11 +71,13 @@ export default function ArtistPage() {
           }
         }
 
-        const sf = getStorefront();
-        const res = await api(`/v1/catalog/${sf}/artists/${catalogArtistId}`, {
-          include: "albums",
-          views: "top-songs",
-        });
+        const res = await api(
+          `/v1/catalog/${accountStorefront}/artists/${catalogArtistId}`,
+          {
+            include: "albums",
+            views: "top-songs",
+          },
+        );
         if (cancelled) return;
 
         const resource = res?.data?.data?.[0];
@@ -123,7 +118,7 @@ export default function ArtistPage() {
     return () => {
       cancelled = true;
     };
-  }, [artistId, api]);
+  }, [artistId, accountStorefront, api]);
 
   const [showAllSongs, setShowAllSongs] = useState(false);
 

@@ -21,7 +21,7 @@ pub async fn download_track(
         let cache = cache_dir.clone();
         async move {
             let token = get_developer_token().await.map_err(|e| e.to_string())?;
-            download_decrypted_audio(&token, &user_token, &track, &cache, None, quality).await
+            download_decrypted_audio(&token, &user_token, &track, &cache, None, None, quality).await
         }
     })
     .await?;

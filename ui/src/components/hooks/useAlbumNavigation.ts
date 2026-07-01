@@ -6,7 +6,7 @@ import { useAppleMusic } from "../AppleMusicProvider";
  * Mirrors useArtistNavigation for consistent patterns.
  */
 export function useAlbumNavigation() {
-  const { navigateTo, api } = useAppleMusic();
+  const { navigateTo, api, accountStorefront } = useAppleMusic();
 
   const navigateToAlbum = useCallback(
     async (albumName: string, item?: MusicKit.Resource) => {
@@ -25,7 +25,12 @@ export function useAlbumNavigation() {
       // Fall back to catalog search
       try {
         const resp = await api(
-          `/v1/catalog/us/search?types=albums&term=${encodeURIComponent(albumName)}&limit=1`,
+          `/v1/catalog/${accountStorefront}/search`,
+          {
+            types: "albums",
+            term: albumName,
+            limit: 1,
+          },
         );
         const results = resp.data?.results?.albums?.data;
         if (results?.[0]?.id) {
@@ -35,7 +40,7 @@ export function useAlbumNavigation() {
         // Ignore search failures
       }
     },
-    [navigateTo, api],
+    [navigateTo, api, accountStorefront],
   );
 
   return navigateToAlbum;

@@ -30,9 +30,11 @@ const _catalogIdCache = new Map<string, string>();
 
 /** Try to resolve a library song ID to a catalog song ID via Apple Music proxy. */
 export async function resolveLibrarySongToCatalog(
+  storefront: string,
   librarySongId: string,
 ): Promise<string | null> {
-  const cached = _catalogIdCache.get(librarySongId);
+  const cacheKey = `${storefront}:${librarySongId}`;
+  const cached = _catalogIdCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
   try {
@@ -58,7 +60,7 @@ export async function resolveLibrarySongToCatalog(
     const catalogData = song.relationships?.catalog?.data;
     if (Array.isArray(catalogData) && catalogData.length > 0) {
       const id = catalogData[0].id;
-      _catalogIdCache.set(librarySongId, id);
+      _catalogIdCache.set(cacheKey, id);
       return id;
     }
 
@@ -71,7 +73,7 @@ export async function resolveLibrarySongToCatalog(
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({
-        path: "/v1/catalog/us/search",
+        path: `/v1/catalog/${storefront}/search`,
         params: {
           types: "songs",
           term: `${name} ${artist ?? ""}`.trim(),
@@ -95,7 +97,7 @@ export async function resolveLibrarySongToCatalog(
       (result) => result.attributes?.name?.toLowerCase() === loweredName,
     );
     const resolved = exact?.id ?? results[0].id;
-    if (resolved) _catalogIdCache.set(librarySongId, resolved);
+    if (resolved) _catalogIdCache.set(cacheKey, resolved);
     return resolved ?? null;
   } catch (error) {
     console.warn("[AppleMusic] resolveLibrarySongToCatalog failed:", error);

@@ -6,7 +6,7 @@ import { useAppleMusic } from "../AppleMusicProvider";
  * Reusable across TrackList, MediaItemCard, and page components.
  */
 export function useArtistNavigation() {
-  const { navigateTo, api } = useAppleMusic();
+  const { navigateTo, api, accountStorefront } = useAppleMusic();
 
   const navigateToArtist = useCallback(
     async (artistName: string, item?: MusicKit.Resource) => {
@@ -25,7 +25,12 @@ export function useArtistNavigation() {
       // Fall back to catalog search
       try {
         const resp = await api(
-          `/v1/catalog/us/search?types=artists&term=${encodeURIComponent(artistName)}&limit=1`,
+          `/v1/catalog/${accountStorefront}/search`,
+          {
+            types: "artists",
+            term: artistName,
+            limit: 1,
+          },
         );
         const results = resp.data?.results?.artists?.data;
         if (results?.[0]?.id) {
@@ -35,7 +40,7 @@ export function useArtistNavigation() {
         // Ignore search failures
       }
     },
-    [navigateTo, api],
+    [navigateTo, api, accountStorefront],
   );
 
   return navigateToArtist;

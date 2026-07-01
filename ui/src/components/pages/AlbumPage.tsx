@@ -6,14 +6,6 @@ import { ArtworkImage } from "../components/ArtworkImage";
 import { TrackList } from "../components/TrackList";
 import { formatDuration } from "../types";
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 interface AlbumData {
   id: string;
   name: string;
@@ -31,6 +23,7 @@ interface AlbumData {
 export default function AlbumPage() {
   const {
     api,
+    accountStorefront,
     currentPage,
     goBack,
     canGoBack,
@@ -55,7 +48,7 @@ export default function AlbumPage() {
       try {
         const path = isLibrary
           ? `/v1/me/library/albums/${albumId}`
-          : `/v1/catalog/${getStorefront()}/albums/${albumId}`;
+          : `/v1/catalog/${accountStorefront}/albums/${albumId}`;
 
         const res = await api(path, { include: "tracks,artists" });
         if (cancelled) return;
@@ -100,7 +93,7 @@ export default function AlbumPage() {
     return () => {
       cancelled = true;
     };
-  }, [albumId, isLibrary, api]);
+  }, [albumId, isLibrary, accountStorefront, api]);
 
   async function handlePlayAll(): Promise<void> {
     if (!album) return;

@@ -5,14 +5,6 @@ import { MediaItemCard } from "../components/MediaItemCard";
 import { TrackList } from "../components/TrackList";
 import { useArtistNavigation } from "../hooks/useArtistNavigation";
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 interface ChartsData {
   songs: MusicKit.Resource[];
   albums: MusicKit.Resource[];
@@ -20,7 +12,13 @@ interface ChartsData {
 }
 
 export default function BrowsePage() {
-  const { api, navigateTo, setQueue, setQueueFromTracks } = useAppleMusic();
+  const {
+    api,
+    accountStorefront,
+    navigateTo,
+    setQueue,
+    setQueueFromTracks,
+  } = useAppleMusic();
   const navigateToArtist = useArtistNavigation();
   const [charts, setCharts] = useState<ChartsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,8 +31,7 @@ export default function BrowsePage() {
       setLoading(true);
       setError(null);
       try {
-        const sf = getStorefront();
-        const res = await api(`/v1/catalog/${sf}/charts`, {
+        const res = await api(`/v1/catalog/${accountStorefront}/charts`, {
           types: "songs,albums,playlists",
           limit: 50,
         });
@@ -71,7 +68,7 @@ export default function BrowsePage() {
     return () => {
       cancelled = true;
     };
-  }, [api]);
+  }, [accountStorefront, api]);
 
   async function handlePlayTrack(index: number): Promise<void> {
     if (!charts?.songs.length) return;

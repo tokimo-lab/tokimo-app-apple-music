@@ -12,8 +12,8 @@ use crate::error::{ApiResponse, AppError, ok};
 
 use super::{
     APPLE_MUSIC_PREF_SCOPE, APPLE_MUSIC_PREF_SCOPE_ID, APPLE_MUSIC_PREF_TOKEN_KEY, APPLE_MUSIC_QUALITY_KEY,
-    APPLE_MUSIC_SETTINGS_SCOPE_ID, AppCaller, AppCtx, api, parse_user_id, read_user_audio_quality,
-    read_user_music_token,
+    APPLE_MUSIC_SETTINGS_SCOPE_ID, APPLE_MUSIC_STOREFRONT_KEY, AppCaller, AppCtx, api, parse_user_id,
+    read_user_audio_quality, read_user_music_token, read_user_storefront,
 };
 
 // ── /token ────────────────────────────────────────────────────────────────────
@@ -40,6 +40,8 @@ pub async fn get_apple_music_token(
 #[serde(rename_all = "camelCase")]
 pub struct AppleMusicAuthStatus {
     pub has_token: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub storefront: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -52,10 +54,46 @@ pub async fn get_apple_music_auth(
     State(ctx): State<Arc<AppCtx>>,
     caller: AppCaller,
 ) -> Result<RespJson<ApiResponse<AppleMusicAuthStatus>>, AppError> {
-    let has_token = read_user_music_token(&ctx.openapi, &caller.cookie_header)
-        .await?
-        .is_some();
-    Ok(ok(AppleMusicAuthStatus { has_token }))
+    let token = read_user_music_token(&ctx.openapi, &caller.cookie_header).await?;
+    let mut storefront = read_user_storefront(&ctx.openapi, &caller.cookie_header).await?;
+
+    if storefront.is_none()
+        && let Some(ref music_user_token) = token
+    {
+        match super::api::get_user_storefront_from_api(music_user_token).await {
+            Ok(sf) => {
+                storefront = Some(sf.clone());
+                let existing = ctx
+                    .openapi
+                    .pref_get(
+                        &caller.cookie_header,
+                        APPLE_MUSIC_PREF_SCOPE,
+                        APPLE_MUSIC_SETTINGS_SCOPE_ID,
+                    )
+                    .await
+                    .ok()
+                    .flatten()
+                    .unwrap_or_else(|| serde_json::json!({}));
+                let mut settings = existing;
+                settings[APPLE_MUSIC_STOREFRONT_KEY] = serde_json::json!(sf);
+                let _ = ctx
+                    .openapi
+                    .pref_put(
+                        &caller.cookie_header,
+                        APPLE_MUSIC_PREF_SCOPE,
+                        APPLE_MUSIC_SETTINGS_SCOPE_ID,
+                        settings,
+                    )
+                    .await;
+            }
+            Err(e) => warn!("[AppleMusic] Failed to refresh stored storefront: {e}"),
+        }
+    }
+
+    Ok(ok(AppleMusicAuthStatus {
+        has_token: token.is_some(),
+        storefront,
+    }))
 }
 
 pub async fn save_apple_music_auth(
@@ -77,8 +115,10 @@ pub async fn save_apple_music_auth(
         .await?;
 
     // Detect and store the user's storefront region
+    let mut stored_storefront = None;
     match super::api::get_user_storefront_from_api(&body.music_user_token).await {
         Ok(storefront) => {
+            stored_storefront = Some(storefront.clone());
             // Merge into existing settings to preserve audioQuality etc.
             let existing = ctx
                 .openapi
@@ -92,7 +132,7 @@ pub async fn save_apple_music_auth(
                 .flatten()
                 .unwrap_or_else(|| serde_json::json!({}));
             let mut settings = existing;
-            settings["storefront"] = serde_json::json!(storefront);
+            settings[APPLE_MUSIC_STOREFRONT_KEY] = serde_json::json!(storefront);
             let _ = ctx
                 .openapi
                 .pref_put(
@@ -108,7 +148,10 @@ pub async fn save_apple_music_auth(
         }
     }
 
-    Ok(ok(AppleMusicAuthStatus { has_token: true }))
+    Ok(ok(AppleMusicAuthStatus {
+        has_token: true,
+        storefront: stored_storefront,
+    }))
 }
 
 pub async fn delete_apple_music_auth(
@@ -119,7 +162,10 @@ pub async fn delete_apple_music_auth(
     ctx.openapi
         .pref_delete(&caller.cookie_header, APPLE_MUSIC_PREF_SCOPE, APPLE_MUSIC_PREF_SCOPE_ID)
         .await?;
-    Ok(ok(AppleMusicAuthStatus { has_token: false }))
+    Ok(ok(AppleMusicAuthStatus {
+        has_token: false,
+        storefront: read_user_storefront(&ctx.openapi, &caller.cookie_header).await?,
+    }))
 }
 
 // ── /quality ──────────────────────────────────────────────────────────────────

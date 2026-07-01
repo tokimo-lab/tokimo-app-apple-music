@@ -167,6 +167,7 @@ pub const APPLE_MUSIC_PREF_SCOPE_ID: &str = "apple-music-auth";
 pub const APPLE_MUSIC_PREF_TOKEN_KEY: &str = "appleMusicToken";
 pub const APPLE_MUSIC_SETTINGS_SCOPE_ID: &str = "apple-music-settings";
 pub const APPLE_MUSIC_QUALITY_KEY: &str = "audioQuality";
+pub const APPLE_MUSIC_STOREFRONT_KEY: &str = "storefront";
 
 pub const ALLOWED_APPLE_HOSTS: &[&str] = &[
     "api.music.apple.com",
@@ -225,4 +226,16 @@ pub async fn read_user_audio_quality(openapi: &OpenApiClient, cookie_header: &st
                 .and_then(|q| q.as_str().map(AudioQuality::from_str_loose))
         })
         .unwrap_or_default())
+}
+
+pub async fn read_user_storefront(openapi: &OpenApiClient, cookie_header: &str) -> Result<Option<String>, AppError> {
+    let value = openapi
+        .pref_get(cookie_header, APPLE_MUSIC_PREF_SCOPE, APPLE_MUSIC_SETTINGS_SCOPE_ID)
+        .await?;
+    Ok(value
+        .and_then(|v| {
+            v.get(APPLE_MUSIC_STOREFRONT_KEY)
+                .and_then(|sf| sf.as_str().map(str::to_owned))
+        })
+        .filter(|s| !s.is_empty()))
 }

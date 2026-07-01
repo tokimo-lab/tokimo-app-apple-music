@@ -6,14 +6,6 @@ import { ArtworkImage } from "../components/ArtworkImage";
 import { TrackList } from "../components/TrackList";
 import { formatDuration } from "../types";
 
-function getStorefront(): string {
-  try {
-    return MusicKit.getInstance().storefrontCountryCode || "us";
-  } catch {
-    return "us";
-  }
-}
-
 interface PlaylistData {
   id: string;
   name: string;
@@ -26,8 +18,14 @@ interface PlaylistData {
 }
 
 export default function PlaylistPage() {
-  const { api, currentPage, goBack, canGoBack, setQueueFromTracks } =
-    useAppleMusic();
+  const {
+    api,
+    accountStorefront,
+    currentPage,
+    goBack,
+    canGoBack,
+    setQueueFromTracks,
+  } = useAppleMusic();
   const [playlist, setPlaylist] = useState<PlaylistData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +45,7 @@ export default function PlaylistPage() {
       try {
         const path = isLibrary
           ? `/v1/me/library/playlists/${playlistId}`
-          : `/v1/catalog/${getStorefront()}/playlists/${playlistId}`;
+          : `/v1/catalog/${accountStorefront}/playlists/${playlistId}`;
 
         const res = await api(path, { include: "tracks" });
         const resource = res?.data?.data?.[0] ?? null;
@@ -96,7 +94,7 @@ export default function PlaylistPage() {
     return () => {
       cancelled = true;
     };
-  }, [playlistId, isLibrary, api]);
+  }, [playlistId, isLibrary, accountStorefront, api]);
 
   async function handlePlayAll(): Promise<void> {
     if (!playlist) return;

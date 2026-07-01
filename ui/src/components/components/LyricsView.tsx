@@ -4,7 +4,8 @@ import { useAppleMusic } from "../AppleMusicProvider";
 import { useAppleMusicLyrics } from "../use-apple-music-lyrics";
 
 export function LyricsView() {
-  const { nowPlayingItem, currentPlaybackTime, seekToTime } = useAppleMusic();
+  const { nowPlayingItem, accountStorefront, currentPlaybackTime, seekToTime } =
+    useAppleMusic();
   const containerRef = useRef<HTMLDivElement>(null);
   const activeLineRef = useRef<HTMLButtonElement>(null);
   const userScrolledRef = useRef(false);
@@ -22,7 +23,7 @@ export function LyricsView() {
     currentIdx: activeIndex,
     isLoading: loading,
     noLyrics,
-  } = useAppleMusicLyrics(catalogId, getTime);
+  } = useAppleMusicLyrics(catalogId, accountStorefront, getTime);
 
   // Auto-scroll to active line
   useEffect(() => {

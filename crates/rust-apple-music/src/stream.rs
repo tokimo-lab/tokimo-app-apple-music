@@ -24,6 +24,7 @@ pub async fn download_decrypted_audio(
     track_id: &str,
     cache_dir: &Path,
     cached_stream_url: Option<&str>,
+    storefront: Option<&str>,
     quality: AudioQuality,
 ) -> Result<PathBuf, String> {
     // Check cache — quality suffix ensures separate files per quality tier
@@ -44,7 +45,7 @@ pub async fn download_decrypted_audio(
     );
 
     // 1. Get decryption key + stream URL
-    let result = get_decryption_key(dev_token, music_user_token, track_id, quality).await?;
+    let result = get_decryption_key(dev_token, music_user_token, track_id, storefront, quality).await?;
     let _ = cached_stream_url; // TODO: re-add stream URL cache optimization
 
     // Always use result.stream_url — it's resolved to the variant m3u8 URL

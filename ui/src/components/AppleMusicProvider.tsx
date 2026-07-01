@@ -49,6 +49,8 @@ export interface AppleMusicContextValue {
 
   // Auth
   isAuthorized: boolean;
+  /** Apple account storefront from server-stored settings, e.g. "cn". */
+  accountStorefront: string;
   /** True when the stored token was rejected by Apple and needs refresh. */
   tokenExpired: boolean;
   authorize: () => Promise<void>;
@@ -153,12 +155,13 @@ function toMediaTrackSync(
 
 async function toMediaTrackResolving(
   item: MusicKit.Resource | MusicKit.MediaItem,
+  storefront: string,
 ): Promise<MediaTrack | null> {
   const direct = toMediaTrackSync(item);
   if (direct) return direct;
   const raw = String(item.id);
   if (!raw.startsWith("i.")) return null;
-  const catalogId = await resolveLibrarySongToCatalog(raw);
+  const catalogId = await resolveLibrarySongToCatalog(storefront, raw);
   if (!catalogId) return null;
   const attrs =
     (item as MusicKit.Resource).attributes ??
@@ -176,22 +179,31 @@ async function toMediaTrackResolving(
 
 async function tracksFromItems(
   items: ReadonlyArray<MusicKit.Resource | MusicKit.MediaItem>,
+  storefront: string,
 ): Promise<MediaTrack[]> {
-  const resolved = await Promise.all(items.map(toMediaTrackResolving));
+  const resolved = await Promise.all(
+    items.map((item) => toMediaTrackResolving(item, storefront)),
+  );
   return resolved.filter((t): t is MediaTrack => t !== null);
 }
 
 // ── Server-side token storage helpers ──
 
-async function saveTokenToServer(token: string): Promise<void> {
+async function saveTokenToServer(token: string): Promise<string | null> {
   try {
-    await fetch("/api/apps/apple-music/auth", {
+    const resp = await fetch("/api/apps/apple-music/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ musicUserToken: token }),
     });
+    if (!resp.ok) return null;
+    const json = (await resp.json()) as {
+      data?: { storefront?: string };
+    };
+    return json.data?.storefront ?? null;
   } catch (e) {
     console.warn("[AppleMusic] Failed to save token to server:", e);
+    return null;
   }
 }
 
@@ -203,14 +215,22 @@ async function deleteTokenFromServer(): Promise<void> {
   }
 }
 
-async function checkServerToken(): Promise<boolean> {
+async function checkServerToken(): Promise<{
+  hasToken: boolean;
+  storefront: string | null;
+}> {
   try {
     const resp = await fetch("/api/apps/apple-music/auth");
-    if (!resp.ok) return false;
-    const json = await resp.json();
-    return json?.data?.hasToken === true;
+    if (!resp.ok) return { hasToken: false, storefront: null };
+    const json = (await resp.json()) as {
+      data?: { hasToken?: boolean; storefront?: string };
+    };
+    return {
+      hasToken: json?.data?.hasToken === true,
+      storefront: json?.data?.storefront ?? null,
+    };
   } catch {
-    return false;
+    return { hasToken: false, storefront: null };
   }
 }
 
@@ -222,7 +242,9 @@ interface AppleMusicProviderProps {
   initialPage?: AppleMusicPage;
   /** Callback to persist page changes to window metadata. */
   onPageChange?: (page: AppleMusicPage) => void;
-  children: React.ReactNode;
+  /** Kept for compatibility with older callers; sessions are host-owned now. */
+  registerSession?: boolean;
+  children?: React.ReactNode;
 }
 
 export function AppleMusicProvider({
@@ -242,12 +264,14 @@ export function AppleMusicProvider({
 
   const [isConfigured, setIsConfigured] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [accountStorefront, setAccountStorefront] = useState("us");
   const [tokenExpired, setTokenExpired] = useState(false);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [hasEverPlayedLocal, setHasEverPlayedLocal] = useState(false);
 
   // ── MediaCenter snapshot ──
-  const { snapshot, api: mediaApi } = useMediaCenter(ctx);
+  const { snapshot, api: mediaApiMaybe } = useMediaCenter(ctx);
+  const mediaApi = mediaApiMaybe!;
   const mediaApiRef = useRef(mediaApi);
   mediaApiRef.current = mediaApi;
 
@@ -378,16 +402,18 @@ export function AppleMusicProvider({
         // Capture MusicKit's own token BEFORE any await — MusicKit on
         // non-apple.com origins clears musicUserToken almost immediately.
         const mkToken = instance.musicUserToken;
-        const hasServerToken = await checkServerToken();
+        const serverAuth = await checkServerToken();
+        if (serverAuth.storefront) setAccountStorefront(serverAuth.storefront);
 
-        if (!hasServerToken && mkToken) {
+        if (!serverAuth.hasToken && mkToken) {
           console.log(
             "[AppleMusic] No server token but MusicKit has one — restoring to server",
           );
-          await saveTokenToServer(mkToken);
+          const storefront = await saveTokenToServer(mkToken);
+          if (storefront) setAccountStorefront(storefront);
           musicUserTokenRef.current = mkToken;
           setIsAuthorized(true);
-        } else if (hasServerToken) {
+        } else if (serverAuth.hasToken) {
           musicUserTokenRef.current = "server-stored";
           setIsAuthorized(true);
         } else {
@@ -413,7 +439,9 @@ export function AppleMusicProvider({
     const onAuthChange = () => {
       if (mk.isAuthorized && mk.musicUserToken) {
         musicUserTokenRef.current = mk.musicUserToken;
-        saveTokenToServer(mk.musicUserToken);
+        saveTokenToServer(mk.musicUserToken).then((storefront) => {
+          if (storefront) setAccountStorefront(storefront);
+        });
         setIsAuthorized(true);
       } else if (!musicUserTokenRef.current) {
         setIsAuthorized(false);
@@ -459,7 +487,9 @@ export function AppleMusicProvider({
       const token = mk.musicUserToken;
       if (token && !musicUserTokenRef.current) {
         musicUserTokenRef.current = token;
-        tokenSavePromise = saveTokenToServer(token);
+        tokenSavePromise = saveTokenToServer(token).then((storefront) => {
+          if (storefront) setAccountStorefront(storefront);
+        });
         setIsAuthorized(true);
       }
     };
@@ -474,7 +504,9 @@ export function AppleMusicProvider({
         captureToken();
         if (!musicUserTokenRef.current) {
           musicUserTokenRef.current = result;
-          tokenSavePromise = saveTokenToServer(result);
+          tokenSavePromise = saveTokenToServer(result).then((storefront) => {
+            if (storefront) setAccountStorefront(storefront);
+          });
           setIsAuthorized(true);
         }
       }
@@ -549,6 +581,86 @@ export function AppleMusicProvider({
       return { data } as MusicKit.APIResponse;
     },
     [],
+  );
+
+  const resolveQueueOptions = useCallback(
+    async (options: MusicKit.SetQueueOptions): Promise<MediaTrack[]> => {
+      const fetchResource = async (
+        path: string,
+        params?: Record<string, unknown>,
+      ): Promise<MusicKit.Resource[]> => {
+        const res = await apiHelper(path, params);
+        return res?.data?.data ?? [];
+      };
+
+      if (options.song) {
+        const songId = options.song;
+        if (songId.startsWith("i.")) {
+          const catalogId = await resolveLibrarySongToCatalog(
+            accountStorefront,
+            songId,
+          );
+          if (!catalogId) return [];
+          return tracksFromItems(
+            await fetchResource(
+              `/v1/catalog/${accountStorefront}/songs/${catalogId}`,
+            ),
+            accountStorefront,
+          );
+        }
+        return tracksFromItems(
+          await fetchResource(`/v1/catalog/${accountStorefront}/songs/${songId}`),
+          accountStorefront,
+        );
+      }
+
+      if (options.songs?.length) {
+        const directIds: string[] = [];
+        for (const songId of options.songs) {
+          if (songId.startsWith("i.")) {
+            const resolved = await resolveLibrarySongToCatalog(
+              accountStorefront,
+              songId,
+            );
+            if (resolved) directIds.push(resolved);
+          } else {
+            directIds.push(songId);
+          }
+        }
+        if (directIds.length === 0) return [];
+        return tracksFromItems(
+          await fetchResource(
+            `/v1/catalog/${accountStorefront}/songs/${directIds.join(",")}`,
+          ),
+          accountStorefront,
+        );
+      }
+
+      if (options.album) {
+        const albums = await fetchResource(
+          `/v1/catalog/${accountStorefront}/albums/${options.album}`,
+          { include: "tracks" },
+        );
+        return tracksFromItems(
+          albums[0]?.relationships?.tracks?.data ?? [],
+          accountStorefront,
+        );
+      }
+
+      if (options.playlist) {
+        const playlists = await fetchResource(
+          `/v1/catalog/${accountStorefront}/playlists/${options.playlist}`,
+          { include: "tracks" },
+        );
+        return tracksFromItems(
+          playlists[0]?.relationships?.tracks?.data ?? [],
+          accountStorefront,
+        );
+      }
+
+      return [];
+    },
+    [accountStorefront, apiHelper],
   );
 
   // ── Playback controls (delegate to MediaCenter) ──
@@ -637,27 +749,15 @@ export function AppleMusicProvider({
       setPlaybackError(null);
 
       try {
-        await mk.setQueue({ ...options, startPlaying: false });
+        let tracks = await resolveQueueOptions(options);
 
-        // Library-only song with no catalog mapping — try the explicit
-        // catalog fallback so backend audio decryption succeeds.
-        if (mk.queue.isEmpty && options.song?.startsWith("i.")) {
-          const catalogId = await resolveLibrarySongToCatalog(options.song);
-          if (catalogId) {
-            await mk.setQueue({ song: catalogId });
-          }
+        if (tracks.length === 0 && (options.station || options.url)) {
+          await mk.setQueue({ ...options, startPlaying: false });
+          tracks = await tracksFromItems(mk.queue.items, accountStorefront);
         }
 
-        if (mk.queue.isEmpty) {
-          const msg = "This item is no longer available in Apple Music";
-          setPlaybackError(msg);
-          messageRef.current.error(msg);
-          return;
-        }
-
-        const tracks = await tracksFromItems(mk.queue.items);
         if (tracks.length === 0) {
-          const msg = "No playable tracks found";
+          const msg = "This item is no longer available in Apple Music";
           setPlaybackError(msg);
           messageRef.current.error(msg);
           return;
@@ -671,13 +771,13 @@ export function AppleMusicProvider({
         messageRef.current.error(`Cannot play this item: ${msg}`);
       }
     },
-    [playMediaTracks],
+    [accountStorefront, playMediaTracks, resolveQueueOptions],
   );
 
   const setQueueFromTracks = useCallback(
     async (tracks: MusicKit.Resource[], startIndex: number) => {
       if (tracks.length === 0) return;
-      const mediaTracks = await tracksFromItems(tracks);
+      const mediaTracks = await tracksFromItems(tracks, accountStorefront);
       if (mediaTracks.length === 0) {
         const msg = "No playable tracks in this list";
         setPlaybackError(msg);
@@ -688,7 +788,7 @@ export function AppleMusicProvider({
       const clamped = Math.min(startIndex, mediaTracks.length - 1);
       await playMediaTracks(mediaTracks, Math.max(0, clamped));
     },
-    [playMediaTracks],
+    [accountStorefront, playMediaTracks],
   );
 
   const skipToQueueIndex = useCallback(async (index: number) => {
@@ -706,14 +806,11 @@ export function AppleMusicProvider({
       if (!mk) return;
 
       try {
-        await mk.setQueue({ ...options, startPlaying: false });
-        if (mk.queue.isEmpty && options.song?.startsWith("i.")) {
-          const catalogId = await resolveLibrarySongToCatalog(options.song);
-          if (catalogId) await mk.setQueue({ song: catalogId });
+        let additions = await resolveQueueOptions(options);
+        if (additions.length === 0 && (options.station || options.url)) {
+          await mk.setQueue({ ...options, startPlaying: false });
+          additions = await tracksFromItems(mk.queue.items, accountStorefront);
         }
-        if (mk.queue.isEmpty) return;
-
-        const additions = await tracksFromItems(mk.queue.items);
         if (additions.length === 0) return;
 
         const snap = mediaApiRef.current.getSnapshot();
@@ -736,7 +833,7 @@ export function AppleMusicProvider({
         messageRef.current.error(`Cannot queue this item: ${msg}`);
       }
     },
-    [playMediaTracks],
+    [accountStorefront, playMediaTracks, resolveQueueOptions],
   );
 
   const playNext = useCallback(
@@ -755,6 +852,7 @@ export function AppleMusicProvider({
       isReady: isConfigured && !loadError,
       isConfigured,
       isAuthorized,
+      accountStorefront,
       tokenExpired,
       authorize,
       unauthorize,
@@ -794,6 +892,7 @@ export function AppleMusicProvider({
       isConfigured,
       loadError,
       isAuthorized,
+      accountStorefront,
       tokenExpired,
       authorize,
       unauthorize,

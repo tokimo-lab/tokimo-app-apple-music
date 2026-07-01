@@ -64,6 +64,7 @@ export function TrackList({
     pause,
     navigateTo,
     api,
+    accountStorefront,
   } = useAppleMusic();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -88,7 +89,12 @@ export function TrackList({
       // Fall back to catalog search
       try {
         const resp = await api(
-          `/v1/catalog/us/search?types=albums&term=${encodeURIComponent(albumName)}&limit=1`,
+          `/v1/catalog/${accountStorefront}/search`,
+          {
+            types: "albums",
+            term: albumName,
+            limit: 1,
+          },
         );
         const results = resp.data?.results?.albums?.data;
         if (results?.[0]?.id) {
@@ -98,7 +104,7 @@ export function TrackList({
         // Ignore search failures
       }
     },
-    [navigateTo, api],
+    [navigateTo, api, accountStorefront],
   );
 
   return (
