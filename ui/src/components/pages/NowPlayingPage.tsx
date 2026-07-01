@@ -429,10 +429,13 @@ export default function NowPlayingPage() {
   const nowPlayingGridStyle = useMemo(() => {
     if (isNarrow) return undefined;
     if (containerWidth >= 1500) {
-      return { gridTemplateColumns: "20rem minmax(0,1fr)" };
+      return { gridTemplateColumns: "24rem minmax(0,1fr)" };
     }
-    if (containerWidth >= 1200) {
-      return { gridTemplateColumns: "19rem minmax(0,1fr)" };
+    if (containerWidth >= 1100) {
+      return { gridTemplateColumns: "23rem minmax(0,1fr)" };
+    }
+    if (containerWidth >= 960) {
+      return { gridTemplateColumns: "21rem minmax(0,1fr)" };
     }
     return { gridTemplateColumns: "18rem minmax(0,1fr)" };
   }, [containerWidth, isNarrow]);
