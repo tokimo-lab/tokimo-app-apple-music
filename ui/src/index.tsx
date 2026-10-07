@@ -26,6 +26,11 @@ export default defineApp({
     defaultSize: { width: 1280, height: 850 },
     category: "app",
   },
+  standalone: {
+    createWindow: (route) => ({ type: "apple-music", route }),
+    getRoute: (window) =>
+      window.type === "apple-music" ? (window.route ?? "/") : null,
+  },
   mount(container, ctx): Dispose {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },

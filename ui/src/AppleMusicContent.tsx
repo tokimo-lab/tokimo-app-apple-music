@@ -104,7 +104,7 @@ function pageToRoute(page: AppleMusicPage): string {
 /** Parse a route path back into an AppleMusicPage. */
 function parseRouteToPage(route: string): AppleMusicPage | undefined {
   if (!route || route === "/") return undefined;
-  const segments = route.replace(/^\//, "").split("/");
+  const segments = route.split(/[?#]/, 1)[0].replace(/^\//, "").split("/");
   const [type, source, id] = segments;
   if (type === "library") {
     const validTabs = ["songs", "albums", "artists", "playlists"];
