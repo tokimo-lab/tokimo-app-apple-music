@@ -473,7 +473,7 @@ export default function NowPlayingPage() {
   return (
     <div
       ref={containerRef}
-      className="relative flex h-full flex-col overflow-hidden transition-colors duration-700"
+      className="app-safe-area relative flex h-full flex-col overflow-hidden transition-colors duration-700"
       style={{ backgroundColor: bgColor }}
     >
       {/* Blurred artwork background */}

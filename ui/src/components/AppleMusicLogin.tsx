@@ -31,14 +31,14 @@ export function AppleMusicLogin() {
 
   if (!isReady) {
     return (
-      <div className="flex h-full items-center justify-center bg-transparent">
+      <div className="app-safe-area flex h-full items-center justify-center bg-surface-base">
         <Spin />
       </div>
     );
   }
 
   return (
-    <div className="flex h-full items-center justify-center bg-transparent">
+    <div className="app-safe-area flex h-full items-center justify-center bg-surface-base">
       <div className="flex max-w-sm flex-col items-center gap-6 px-8 text-center">
         {/* Icon */}
         <div

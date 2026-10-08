@@ -50,7 +50,7 @@ export default function AppleMusicContent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="app-safe-area flex h-full items-center justify-center bg-surface-base">
         <Spin />
       </div>
     );
@@ -58,7 +58,7 @@ export default function AppleMusicContent() {
 
   if (error || !data?.developerToken) {
     return (
-      <div className="flex h-full items-center justify-center p-8">
+      <div className="app-safe-area flex h-full items-center justify-center bg-surface-base [--app-safe-area-padding:2rem]">
         <Alert
           type="error"
           message={

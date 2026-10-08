@@ -185,13 +185,19 @@ export function AppleMusicLayout() {
   }
 
   return (
-    <div ref={containerRef} className="flex h-full flex-col">
-      <div className="relative flex flex-1 overflow-hidden">
+    <div ref={containerRef} className="flex h-full flex-col bg-surface-base">
+      <div
+        className={
+          hasEverPlayed
+            ? "relative flex flex-1 overflow-hidden [--app-safe-area-bottom:0px]"
+            : "relative flex flex-1 overflow-hidden"
+        }
+      >
         <AppleMusicSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapse={onToggleCollapse}
         />
-        <main className="flex-1 overflow-y-auto bg-[var(--color-surface-content)]">
+        <main className="app-safe-area flex-1 overflow-y-auto bg-[var(--color-surface-content)]">
           <Suspense fallback={PageFallback}>
             <PageContent page={currentPage} />
           </Suspense>

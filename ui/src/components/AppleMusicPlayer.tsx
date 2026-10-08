@@ -75,7 +75,7 @@ export function AppleMusicPlayer() {
   return (
     <div
       ref={playerRef}
-      className="flex h-20 flex-shrink-0 items-center border-t border-border-base bg-[var(--color-surface-overlay)] px-4"
+      className="app-safe-area-bottom flex h-[calc(5rem+var(--app-safe-area-bottom,0px))] flex-shrink-0 items-center border-t border-border-base bg-[var(--color-surface-overlay)] px-4"
     >
       {" "}
       {/* Left: Now playing info — click to expand */}
